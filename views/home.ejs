@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <!-- We get the name of the app out of the information fetched -->
+    <title>LambdaM</title>
+    <link rel="stylesheet" href="stylesheets/screen.css" media="screen">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script type="text/javascript">
+      var counter = 0;
+
+      // open a socket.io connection to the backend
+      //var socket = io.connect('/input');
+      var socket = io.connect();
+
+      socket.on('connect', function() {
+        $('#data').append('<b>connected</b><br>'); 
+
+        // identify this socket with our auth token
+        socket.emit('auth', '<%= socket_id %>');
+
+      // when a status is received from the backend, add it to the page
+      // socket.on('update', function(data) {
+      //   $('#data').append(data+'<br>'); 
+      // });
+
+      socket.on('update', function(msg) {
+        console.log(msg);
+        $('#data').prepend('<b>received:</b> <i>'+msg['value']+'</i><br>');
+      });
+
+      $("#testbtn").click(function() {
+         socket.emit('message', {'text': 'testing'});
+         $('#data').prepend('<b>emmit '+counter+'</b><br>');
+         counter++;
+         });
+
+    });
+
+    </script>
+    <!--[if IE]>
+      <script>
+        var tags = ['header', 'section'];
+        while(tags.length)
+          document.createElement(tags.pop());
+      </script>
+    <![endif]-->
+  </head>
+  <body>
+    <section id="samples" class="clearfix">
+      <h1>Receive data</h1>
+
+      <button id="testbtn">Hello</button>
+      <div class="list" id="data">
+      </div>
+
+    </section>
+
+  </body>
+</html>
