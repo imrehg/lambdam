@@ -44,3 +44,4 @@ build/config/buildinfo.properties
 
 #### My own
 node_modules
+*.pyc
