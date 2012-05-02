@@ -1,0 +1,65 @@
+<html>
+<head>
+<title><%= title %></title>
+<link rel="stylesheet" href="/css/jquery-ui.css" type="text/css"/>
+<script src="/js/libs/jquery-1.7.2.min.js"></script>
+<script src="/js/libs/jquery-ui-1.8.19.custom.min.js"></script>
+<script src="/js/libs/d3.v2.js"></script>
+<script src="/js/libs/cubism.v1.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+.wavetext {
+  font-size: xx-large;
+  font-family: monospace;
+}
+</style>
+<script>
+
+  function channelToggle(chn, turnon) {
+    if (turnon == true) {
+      $("#wavedisplay"+chn).show();      
+    } else {
+      $("#wavedisplay"+chn).hide();
+    }
+  }
+
+  var socket = io.connect();
+
+  $("document").ready(function() {
+       $(".wavedisplay").hide();
+       $(".btnchn").button();
+       $(".btnchn").click(function() {
+          var turnon = false;
+          if ($(this).attr('checked')) {
+             turnon = true;
+          }
+          var id = $(this).attr('id');
+          var chn = id.slice(6,id.length+1);
+          channelToggle(chn, turnon);
+        });
+
+  });
+  
+  socket.on('update', function (data) {
+    var channel = data['channel']
+      , value = data['value'];
+    $("#wavetext"+channel).text(value);
+  });
+
+</script>
+</head>
+<body>
+
+<h2>Wavemeter channels</h2>
+
+<% for (var c = 1; c <= channels; c++) { %>
+    <div id="channel<%= c %>" style="border: solid 0px; height: 100px">
+      <input type="checkbox" id="btnchn<%= c %>" class="btnchn"/><label for="btnchn<%= c %>">Channel <%= c %></label>
+      <div class="wavedisplay" id="wavedisplay<%= c %>">
+      <span class="wavetext" id="wavetext<%= c %>">No data yet....</span>
+      </div>
+    </div>
+<% } %>
+
+</body>
+</html>

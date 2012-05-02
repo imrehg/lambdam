@@ -5,6 +5,7 @@ var uuid = require('node-uuid');
 
 var app = express.createServer(express.logger());
 app.use(express.bodyParser());
+app.use(express.static(__dirname + '/public'));
 
 var io = require('socket.io').listen(app);
 
@@ -19,18 +20,21 @@ io.configure(function(){
 // Main page
 app.get('/', function(request, response) {
 
-  var socket_id = uuid();
-  response.render('home.ejs', {
-      layout: false,
-      socket_id: socket_id
-  });
+  // var socket_id = uuid();
+  // response.render('home.ejs', {
+  //     layout: false,
+  //     socket_id: socket_id
+  // });
+    response.redirect('/dash');
 
 });
 
 
 function messageCenter(socket, msg) {
-    console.log("-->> Got me message: "+msg['text']);
-    socket.broadcast.emit('update', {'type': 'wavelegth', 'value': msg['text']})
+    console.log(msg);
+    if (msg['wavelength']) {
+	socket.broadcast.emit('update', msg['wavelength']);
+    }
 };
 
 io.sockets.on('connection', function (socket) {
@@ -39,37 +43,24 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect', function () { });
 });
 
-// // Socket connections
-// var chdata = io.of('/data');
-// chdata.on('connection', function (socket) {
-//     console.log('---> Data connection');   
-// });
-// var chinput = io.of('/input').on('connection', function (socket) {
-//     console.log('---> Input connection');
-// }).on('message', function (msg) {
-//     console.log('---> Input message');
-//     messageCenter(msg);
-// }).on('input', function (msg) {
-//     console.log('---> Input input');
-//     messageCenter(msg);
-// });
+// Dashboard
+app.get('/dash', function(request, response) {
+  var socket_id = uuid();
+  response.render('dashboard.ejs', {
+      layout: false,
+      title: "Dashboard",
+      channels: 6,
+      socket_id: socket_id
+  });
+});
 
-// chinput.on('message', function (msg) {
-//     console.log('---x InputMessage:',msg);
-//     chdata.emit('update', msg);
-// });
-// chinput.on('datain', function (from, msg) {
-//     console.log('---* Datain:',from,'saying',msg);
-//     chdata.emit('update', msg);
-// });
-// io.sockets.on('connection', function (socket) {
-//     console.log('---> Basic socket connection');   
-// });
-// io.sockets.on('msg', function (from, msg) {
-//     console.log('---* Basic datain', from, 'saying', msg);
-// });
-
-
+// Missing page: 404
+app.get('*', function(request, response) {
+  response.render('404.ejs', {
+      layout: false,
+      title: "Something went wrong"
+  });
+});
 
 // Start the app
 var port = process.env.PORT || 3000;
