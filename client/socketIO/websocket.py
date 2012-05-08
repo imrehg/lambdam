@@ -64,6 +64,10 @@ class WebSocketException(Exception):
     pass
 
 # default_timeout = None
+# This value is currently too low, so it might not connect over the network,
+# for local machine it should be okay. It is needed, because the read function
+# otherwise keeps up everything else, since we cannot wait for a read while
+# doing other stuff in the socketio/wavemeter code
 default_timeout = 0.01
 traceEnabled = False
 
