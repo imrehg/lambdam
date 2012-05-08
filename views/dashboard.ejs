@@ -6,6 +6,7 @@
 <script src="/js/libs/jquery-ui-1.8.19.custom.min.js"></script>
 <script src="/js/libs/d3.v2.js"></script>
 <script src="/js/libs/cubism.v1.js"></script>
+<script src="/js/libs/buckets.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <style>
 .wavetext {
@@ -23,6 +24,7 @@
     }
   }
 
+  var channels = new buckets.Set();
   var socket = io.connect();
 
   $("document").ready(function() {
@@ -36,6 +38,20 @@
           var id = $(this).attr('id');
           var chn = id.slice(6,id.length+1);
           channelToggle(chn, turnon);
+          if (turnon) {
+            channels.add(chn);
+            console.log("Add channel");
+          } else {
+            channels.remove(chn);
+            console.log("Remove channel");
+          }
+          var charray = channels.toArray();
+          var settings = new Array();
+          channels.forEach(function(e) {
+            settings.push({"num": e, "t": 0.02});
+          });
+          socket.emit("message", {"settings": settings});
+          console.log(settings);
         });
 
   });

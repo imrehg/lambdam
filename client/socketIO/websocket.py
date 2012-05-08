@@ -63,7 +63,8 @@ class WebSocketException(Exception):
     """
     pass
 
-default_timeout = None
+# default_timeout = None
+default_timeout = 0.01
 traceEnabled = False
 
 def enableTrace(tracable):

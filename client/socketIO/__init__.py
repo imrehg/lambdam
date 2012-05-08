@@ -30,7 +30,7 @@ class SocketIO(object):
 
     def __connect(self):
         self.connection = create_connection('ws://%s:%d/socket.io/1/websocket/%s' % (self.host, self.port, self.sessionID))
-        print "->", self.connection.recv()
+        # print "->", self.connection.recv()
         print("ID", self.sessionID)
         # self.connection.send('1::')
         # print self.connection.recv()
@@ -61,14 +61,17 @@ class SocketIO(object):
 
     def __send_heartbeat(self):
         self.connection.send('2::')
-        print "->", self.connection.recv()
+        # print "->", self.connection.recv()
 
     def emit(self, eventName, eventData):
         self.msgid += 1
         sentString = '5:%d::' %(self.msgid) + dumps(dict(name=eventName, args=eventData))
         print(sentString)
         self.connection.send(sentString)
-        print "->", self.connection.recv()
+        # print "->", self.connection.recv()
+
+    def recv(self):
+        return self.connection.recv()
 
 
 class SocketIOError(Exception):

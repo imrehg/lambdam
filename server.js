@@ -19,26 +19,25 @@ io.configure(function(){
 
 // Main page
 app.get('/', function(request, response) {
-
-  // var socket_id = uuid();
-  // response.render('home.ejs', {
-  //     layout: false,
-  //     socket_id: socket_id
-  // });
     response.redirect('/dash');
-
 });
 
+// Store settings in memory as well
+var wmsettings = [];
 
 function messageCenter(socket, msg) {
     console.log(msg);
     if (msg['wavelength']) {
 	socket.broadcast.emit('update', msg['wavelength']);
+    } else if (msg['settings']) {
+	wmsettings = msg['settings'];
+	socket.broadcast.emit('settings', wmsettings);
     }
 };
 
 io.sockets.on('connection', function (socket) {
     console.log("--++ Connected: ", socket['id']);
+    socket.emit('settings', wmsettings);
     socket.on('message', function(msg) { messageCenter(socket, msg);} );
     socket.on('disconnect', function () { });
 });
@@ -49,7 +48,7 @@ app.get('/dash', function(request, response) {
   response.render('dashboard.ejs', {
       layout: false,
       title: "Dashboard",
-      channels: 6,
+      channels: 16,
       socket_id: socket_id
   });
 });
