@@ -10,6 +10,7 @@ from random import gauss, shuffle
 from socketIO import SocketIO
 import logging
 import os
+import serial
 
 try:
     import simplejson as json
@@ -26,15 +27,31 @@ logger.setLevel(logging.DEBUG)
 settingsQ = mp.Queue()
 readingsQ = mp.Queue()
 
+class Switcher(object):
+
+    def __init__(self, port):
+        self.ser = serial.Serial(port,
+                                 115200,
+                                 timeout=1,
+                                 parity=serial.PARITY_NONE,
+                                 bytesize=8,
+                                 stopbits=1,
+                                 xonxoff=1)
+        self.terminator = ""
+
+    def setChannel(self, i):
+        self.ser.write("%d%s" %(i, self.terminator))
+
 class RemoteClient(asyncore.dispatcher):
 
-    def __init__(self, host, path, rQ, sQ):
+    def __init__(self, host, path, rQ, sQ, switch):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect(('localhost', 3000))  # needs it on windows otherwise doesn't write
         self.mysocket = SocketIO('localhost', 3000)
         self.rQ = rQ
         self.sQ = sQ
+        self.switch = switch
 
     def handle_connect(self):
         logger.debug("RC connected")
@@ -111,17 +128,28 @@ class Wavemeter(threading.Thread):
                 i = int(ch['num'])
                 t1 = int(ch['t1'])
                 t2 = int(ch['t2'])
-                totalt = (t1 + t2 + 10) / 1000.0
-                print "Totalt", totalt
-                # do setup
+                # have to add some extra delay of there are switching involved
+                # especially if there's a big difference in the exposure times
+                # the optimal value depends on: number of channels, current and
+                # previous channel exposure time, and probably other things
+                tdelay = 50  # ms
+                totalt = (t1 + t2 + tdelay) / 1000.0  
                 wmdriver.SetExposure((t1, t2))
+                switch.setChannel(i-1)  # Channel number goes from 0  
+                # wmdriver.SetExposure((t1, t2))
+                xt1, xt2 = wmdriver.GetExposure()
+                logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+                if (t1 != xt1) | (t2 != xt2):
+                    logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                 sleep(totalt) # wait
                 self.vals[i] = wmdriver.GetFrequency()
+                logger.debug("Channel %d: measured %f" %(i, self.vals[i]))
                 timestamp = time()
                 self.rQ.put({"wavelength" : { "channel": i, "value": self.vals[i], "timestamp": timestamp}})
             self.done.wait(self.interval)
 
-client = RemoteClient('www.python.org', '/', readingsQ, settingsQ)
+switch = Switcher("COM3")
+client = RemoteClient('www.python.org', '/', readingsQ, settingsQ, switch)
 wavemeterThread = Wavemeter(0.0, settingsQ, readingsQ)
 wavemeterThread.start()
 
