@@ -142,7 +142,7 @@ class Wavemeter(threading.Thread):
                 if (t1 != xt1) | (t2 != xt2):
                     logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                 sleep(totalt) # wait
-                self.vals[i] = wmdriver.GetFrequency()
+                self.vals[i] = wmdriver.GetWavelength()
                 logger.debug("Channel %d: measured %f" %(i, self.vals[i]))
                 timestamp = time()
                 self.rQ.put({"wavelength" : { "channel": i, "value": self.vals[i], "timestamp": timestamp}})

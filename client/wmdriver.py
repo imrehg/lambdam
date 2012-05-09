@@ -45,3 +45,9 @@ getfreq.restype = double
 def GetFrequency():
     """ Get a single frequency reading """
     return getfreq(DZERO)
+
+getwave = wlm.GetWavelength
+getwave.restype = double
+def GetWavelength():
+    """ Get a single frequency reading """
+    return getwave(DZERO)
