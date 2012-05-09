@@ -16,6 +16,8 @@ try:
 except(ImportError):
     import json
 
+import wmdriver
+
 FORMAT = '%(asctime)-15s | %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger('wavemeter')
@@ -91,8 +93,8 @@ class Wavemeter(threading.Thread):
         self.interval = interval
         self.sQ = sQ
         self.rQ = rQ
-        self.settings = {'channels' : [{'num': 3, 't': 0.01}]}
-        # self.settings = {'channels' : []}
+        # self.settings = {'channels' : [{'num': 3, 't': 0.01}]}
+        self.settings = {'channels' : []}
         self.done = threading.Event()
         self.numchn = 16+1
         self.vals = [350.0 for i in range(self.numchn)]
@@ -111,20 +113,18 @@ class Wavemeter(threading.Thread):
                 t = float(ch['t'])
                 # do setup
                 sleep(t) # wait
-                # read value
-                self.vals[i] += random.gauss(0, 0.1)
+                self.vals[i] = wmdriver.GetFrequency()
                 timestamp = time()
                 self.rQ.put({"wavelength" : { "channel": i, "value": self.vals[i], "timestamp": timestamp}})
             self.done.wait(self.interval)
-            # print time()-now
-        
+
 client = RemoteClient('www.python.org', '/', readingsQ, settingsQ)
-wavemeterThread = Wavemeter(0.5, settingsQ, readingsQ)
+wavemeterThread = Wavemeter(0.0, settingsQ, readingsQ)
 wavemeterThread.start()
 
 while True:
     try:
-        asyncore.poll(timeout=0.5)
+        asyncore.poll(timeout=0.0)
     except (KeyboardInterrupt):
         client.close()
         wavemeterThread.close()
