@@ -93,7 +93,6 @@ class Wavemeter(threading.Thread):
         self.interval = interval
         self.sQ = sQ
         self.rQ = rQ
-        # self.settings = {'channels' : [{'num': 3, 't': 0.01}]}
         self.settings = {'channels' : []}
         self.done = threading.Event()
         self.numchn = 16+1
@@ -110,9 +109,13 @@ class Wavemeter(threading.Thread):
             # print self.settings
             for ch in self.settings['channels']:
                 i = int(ch['num'])
-                t = float(ch['t'])
+                t1 = int(ch['t1'])
+                t2 = int(ch['t2'])
+                totalt = (t1 + t2 + 10) / 1000.0
+                print "Totalt", totalt
                 # do setup
-                sleep(t) # wait
+                wmdriver.SetExposure((t1, t2))
+                sleep(totalt) # wait
                 self.vals[i] = wmdriver.GetFrequency()
                 timestamp = time()
                 self.rQ.put({"wavelength" : { "channel": i, "value": self.vals[i], "timestamp": timestamp}})
