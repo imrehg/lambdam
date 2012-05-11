@@ -17,15 +17,64 @@
 <script>
 
   function channelToggle(chn, turnon) {
+    // Blank out saved value array both on enabling and disabling channels
+    savedValues[chn] = new Array();
     if (turnon == true) {
+      startTime[chn] = -1;
       $("#wavedisplay"+chn).show();      
     } else {
       $("#wavedisplay"+chn).hide();
     }
+  };
+
+  function pad(number, length) {
+    var str = '' + number;
+    while (str.length < length) {
+        str = '0' + str;
+    }
+    return str;
+  };
+
+  function dateFromUnix(timestamp) {
+   // From http://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript
+   // create a new javascript Date object based on the timestamp
+   // multiplied by 1000 so that the argument is in milliseconds, not seconds
+   var date = new Date(timestamp*1000);
+
+   var year = date.getFullYear();
+   var month = pad(date.getMonth()+1, 2);
+   var day = pad(date.getDate(), 2)
+   var hours = pad(date.getHours(), 2);
+   var minutes = pad(date.getMinutes(), 2);
+   var seconds = pad(date.getSeconds(), 2);
+
+   // will display time in 10:30:23 format
+   var formattedTime = year + month + day + "-" + hours + minutes + seconds;
+   return formattedTime;
+  };
+
+  function elapsedTime(time, channel) {
+    var seconds = time - startTime[channel];
+    if (seconds < 60) {
+       out = Math.round(seconds)+'s';
+    } else if (seconds < 3600) {
+       var minutes = Math.floor(seconds / 60);
+       var leftseconds = Math.floor(seconds) - minutes*60;
+       out = minutes + ":" + pad(leftseconds, 2) + 'm';
+    } else if (seconds > 3600) {
+       var hours = Math.floor(seconds / 3600);
+       var leftseconds = seconds - hours*3600;
+       var minutes = Math.floor(leftseconds / 60);
+       leftseconds = Math.floor(leftseconds) - minutes*60;
+       out = horus + ":" + pad(minutes, 2) + ":" + pad(leftseconds, 2) + 'h';
+    }
+    return out;
   }
 
   var channels = new buckets.Set();
   var socket = io.connect();
+  var savedValues = new Array(<%= channels+1 %>);
+  var startTime= new Array(<%= channels+1 %>);
 
   $("document").ready(function() {
        $(".wavedisplay").hide();
@@ -77,6 +126,20 @@
           console.log(settings);
         });
 
+       // download accumulated data as csv
+       $(".datadown").click(function() {
+          console.log("CLICK!");
+          var id = $(this).attr('id');
+          var chn = id.slice(8,id.length+1);
+          var csv = '';
+          savedValues[chn].forEach(function(e) {
+             csv += e[0] + ',' + e[1] + '\n';
+          });
+          var timestamp = Math.round(+new Date()/1000);
+          this.download='CH'+chn+'-'+dateFromUnix(timestamp)+'.csv';
+          this.href='data:text/csv;base64,' + btoa(csv);
+        });
+
   });
 
   // Reload settings on page load
@@ -97,8 +160,14 @@
   
   socket.on('update', function (data) {
     var channel = data['channel']
-      , value = data['value'];
+      , value = data['value']
+      , time = data['timestamp'];
     $("#wavetext"+channel).text(value);
+    savedValues[channel].push([time, value]);
+    if (startTime[channel] < 0) {
+        startTime[channel] = time;
+    }
+    $("#timetext"+channel).text(elapsedTime(time, channel));
   });
 
 </script>
@@ -111,6 +180,7 @@
     <div id="channel<%= c %>" style="border: solid 0px; height: 130px">
       <input type="checkbox" id="btnchn<%= c %>" class="btnchn"/><label for="btnchn<%= c %>">Channel <%= c %></label>
       <div class="wavedisplay" id="wavedisplay<%= c %>">
+      <a href="#" class="datadown" id="datadown<%= c %>">Download data</a> <span class="timetext" id="timetext<%= c %>"></span><br/>
       <input type="text" id="tval<%= c %>" style="border:0; color:#f6931f; font-weight:bold;" />
       <div class="tslider" id="tslider<%= c %>"></div>
       <span class="wavetext" id="wavetext<%= c %>">No data yet....</span>

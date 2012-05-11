@@ -6,7 +6,6 @@ import random
 import asyncore, socket
 
 from time import sleep
-from random import gauss, shuffle
 from socketIO import SocketIO
 import logging
 import os
@@ -17,7 +16,12 @@ try:
 except(ImportError):
     import json
 
-import wmdriver
+dummy = True
+if not dummy:
+    import wmdriver
+else:
+    from random import gauss
+
 
 FORMAT = '%(asctime)-15s | %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -134,21 +138,27 @@ class Wavemeter(threading.Thread):
                 # previous channel exposure time, and probably other things
                 tdelay = 50  # ms
                 totalt = (t1 + t2 + tdelay) / 1000.0  
-                wmdriver.SetExposure((t1, t2))
-                switch.setChannel(i-1)  # Channel number goes from 0  
-                # wmdriver.SetExposure((t1, t2))
-                xt1, xt2 = wmdriver.GetExposure()
-                logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
-                if (t1 != xt1) | (t2 != xt2):
-                    logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
-                sleep(totalt) # wait
-                self.vals[i] = wmdriver.GetWavelength()
+                if not dummy:
+                    wmdriver.SetExposure((t1, t2))
+                    switch.setChannel(i-1)  # Channel number goes from 0  
+                    xt1, xt2 = wmdriver.GetExposure()
+                    logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+                    if (t1 != xt1) | (t2 != xt2):
+                        logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+                    sleep(totalt) # wait
+                    self.vals[i] = wmdriver.GetWavelength()
+                else:
+                    sleep(totalt)
+                    self.vals[i] += gauss(0, 0.01)
                 logger.debug("Channel %d: measured %f" %(i, self.vals[i]))
                 timestamp = time()
                 self.rQ.put({"wavelength" : { "channel": i, "value": self.vals[i], "timestamp": timestamp}})
             self.done.wait(self.interval)
 
-switch = Switcher("COM3")
+if not dummy:
+    switch = Switcher("COM3")
+else:
+    switch = None
 client = RemoteClient('www.python.org', '/', readingsQ, settingsQ, switch)
 wavemeterThread = Wavemeter(0.0, settingsQ, readingsQ)
 wavemeterThread.start()
