@@ -31,6 +31,8 @@ logger.setLevel(logging.DEBUG)
 settingsQ = mp.Queue()
 readingsQ = mp.Queue()
 
+port = int(os.environ['PORT']) if os.environ['PORT'] else 5000
+
 class Switcher(object):
 
     def __init__(self, port):
@@ -51,8 +53,8 @@ class RemoteClient(asyncore.dispatcher):
     def __init__(self, host, path, rQ, sQ, switch):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect(('localhost', 3000))  # needs it on windows otherwise doesn't write
-        self.mysocket = SocketIO('localhost', 3000)
+        self.connect(('localhost', port))  # needs it on windows otherwise doesn't write
+        self.mysocket = SocketIO('localhost', port)
         self.rQ = rQ
         self.sQ = sQ
         self.switch = switch
