@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<style>
+body {
+  width: 1800px;
+  border: 1px solid;
+  font-size: 12px;
+  font-family: monospace;
+}
+div.maincontainer {
+  width: 1800px;
+  font-size: 1em;
+  border: 1px dashed;
+  position: absolute;
+  top: 200px;
+}
+
+div.display {
+  width: 800px;
+  border: 2px dotted;
+  position: relative;
+  left: 200px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script>
+  // Adapted from http://stackoverflow.com/a/4166237
+  function resizeText(element) {
+     var width = $(element).width(),
+     html = '<span style="white-space:nowrap"></span>',
+     line = $(element).wrapInner( html ).children()[ 0 ],
+     n = 300;
+     $(element).css( 'font-size', n );
+     while ( $(line).width() > width ) {
+        $(element).css( 'font-size', --n );
+     }
+     $(element).text( $(line).text() );
+  };
+
+  $(document).ready(function() {
+    
+    var display = $("#display1");
+    resizeText(display);
+    $(display).draggable();
+    var display = $("#display2");
+    resizeText(display);
+    $(display).draggable();
+  });
+</script>
+
+<body>
+
+<div class="maincontainer">
+<div class="display" id="display1">354.123456</div>
+<div class="display" id="display2">987.654321</div>
+</div>
+
+</body>
+</html>
