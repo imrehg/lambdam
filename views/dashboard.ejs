@@ -140,6 +140,47 @@
           this.href='data:text/csv;base64,' + btoa(csv);
         });
 
+        function random(name) {
+  var value = 0,
+      values = [],
+      i = 0,
+      last;
+  return context.metric(function(start, stop, step, callback) {
+    start = +start, stop = +stop;
+    if (isNaN(last)) last = start;
+    while (last < stop) {
+      last += step;
+      value = Math.max(-10, Math.min(10, value + .8 * Math.random() - .4 + .2 * Math.cos(i += .2)));
+      values.push(value);
+    }
+    callback(null, values = values.slice((start - stop) / step));
+  }, name);
+}
+
+var context = cubism.context()
+    .serverDelay(0)
+    .clientDelay(0)
+    .step(1e3)
+    .size(700);
+
+var foo = random("foo");
+
+       d3.select("#timeseries1").call(function(div) {
+		     div.append("div")
+		     .attr("class", "axis")
+		     .call(context.axis().orient("top"));
+
+		     div.selectAll(".horizon")
+		     .data([foo])
+		     .enter().append("div")
+		     .attr("class", "horizon")
+		     .call(context.horizon().extent([-50, 50]));
+		     
+		     div.append("div")
+		     .attr("class", "rule")
+		     .call(context.rule());
+		     });
+
   });
 
   // Reload settings on page load
@@ -181,6 +222,7 @@
       <input type="checkbox" id="btnchn<%= c %>" class="btnchn"/><label for="btnchn<%= c %>">Channel <%= c %></label>
       <div class="wavedisplay" id="wavedisplay<%= c %>">
       <a href="#" class="datadown" id="datadown<%= c %>">Download data</a> <span class="timetext" id="timetext<%= c %>"></span><br/>
+      <div id="timeseries<%= c%>"></div>
       <input type="text" id="tval<%= c %>" style="border:0; color:#f6931f; font-weight:bold;" />
       <div class="tslider" id="tslider<%= c %>"></div>
       <span class="wavetext" id="wavetext<%= c %>">No data yet....</span>
