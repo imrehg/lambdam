@@ -19,11 +19,15 @@ div.display {
   width: 800px;
   border: 2px dotted;
   position: relative;
-  left: 200px;
+  <!-- left: 200px; -->
 }
+
+#sortable { list-style-type: none; margin: 0; padding: 40; width: 60%; }
+
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<script src="https://raw.github.com/madrobby/keymaster/master/keymaster.min.js"></script>
 <script>
   // Adapted from http://stackoverflow.com/a/4166237
   function resizeText(element) {
@@ -42,18 +46,29 @@ div.display {
     
     var display = $("#display1");
     resizeText(display);
-    $(display).draggable();
+    <!-- $(display).draggable(); -->
     var display = $("#display2");
     resizeText(display);
-    $(display).draggable();
-  });
+    <!-- $(display).draggable(); -->
+
+    $( "#sortable" ).sortable();
+    $( "#sortable" ).disableSelection();
+
+    // Can add keyboard shortcuts
+    key('a, left', function(){ alert('wanna go left?!'); return true; });
+    key('d, right', function(){ alert('wanna go right?!'); return false; });
+    key('ctrl+r', function(){ alert('Controlled') });
+ });
 </script>
 
 <body>
 
 <div class="maincontainer">
-<div class="display" id="display1">354.123456</div>
-<div class="display" id="display2">987.654321</div>
+<ul id="sortable">
+	<li ><div class="display" id="display1">354.123456</div></i>
+	<li ><div class="display" id="display2">987.654321</div></i>
+</ul>
+
 </div>
 
 </body>
