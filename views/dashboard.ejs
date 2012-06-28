@@ -13,19 +13,70 @@
   font-size: xx-large;
   font-family: monospace;
 }
+
+div#channellist {
+  border: 1px solid;
+  width: 120px;
+}
+
+button.enabled {
+  background: green;
+}
+
 </style>
 <script>
-  function randint(max) {
-    return Math.floor((Math.random()*max)+1);
+  var channels = {};
+
+  // Take an item id and remove the base string from it
+  function getNumFromId(id, idbase) {
+     return id.slice(idbase.length, id.length+1);
   }
 
-  var channels = new Array();
-  channels.push(io.connect('/chn'+randint(3)));
-  console.log(channels);
-  channels[0].on('data', function(data) {
-    console.log(this.name);
-    console.log(data);
+  var conn = io.connect();
+  conn.on('message', function(msg) {
+    console.log(msg);
+  })
+
+  function changeChannel(chn) {
+     if (chn in channels) {
+        console.log("Disabling "+chn);
+        $("#chnbtn"+chn).toggleClass("enabled");
+        <!-- conn.emit('unsubscribe', {room: chn}); -->
+        delete channels[chn];
+        <!-- console.log(channels); -->
+     } else {
+        console.log("Enabling "+chn);
+        $("#chnbtn"+chn).toggleClass("enabled");
+        conn.json.send({room: chn});
+        channels[chn] = true;
+     }
+     
+     <!-- conn.socket.join('room'); -->
+     <!-- console.log(conn.socket); -->
+     <!-- if (chn in channels) { -->
+     <!--    console.log("Disabling "+chn); -->
+     <!--    $("#chnbtn"+chn).toggleClass("enabled"); -->
+     <!--    <\!-- channels[chn].disconnect(); -\-> -->
+     <!--    delete channels[chn]; -->
+     <!--    console.log(channels); -->
+     <!-- } else { -->
+     <!--    console.log("Enabling "+chn); -->
+     <!--    $("#chnbtn"+chn).toggleClass("enabled"); -->
+     <!--    channels[chn] = conn.join('chn'+chn); -->
+     <!--    console.log(channels); -->
+     <!-- } -->
+  }
+
+  // Things for when we are ready to manipulate the page
+  $("document").ready(function() {
+
+      $(".chnbtn").click(function() {
+         var chn = getNumFromId(this.id, 'chnbtn');
+         changeChannel(chn);
+       });
+
   });
+
   <!-- function channelToggle(chn, turnon) { -->
   <!--   // Blank out saved value array both on enabling and disabling channels -->
   <!--   savedValues[chn] = new Array(); -->
@@ -186,17 +237,26 @@
 
 <h2>Wavemeter channels</h2>
 
+
+<div id="channellist">
 <% for (var c = 1; c <= channels; c++) { %>
-    <div id="channel<%= c %>" style="border: solid 0px; height: 130px">
-      <input type="checkbox" id="btnchn<%= c %>" class="btnchn"/><label for="btnchn<%= c %>">Channel <%= c %></label>
-      <div class="wavedisplay" id="wavedisplay<%= c %>">
-      <a href="#" class="datadown" id="datadown<%= c %>">Download data</a> <span class="timetext" id="timetext<%= c %>"></span><br/>
-      <input type="text" id="tval<%= c %>" style="border:0; color:#f6931f; font-weight:bold;" />
-      <div class="tslider" id="tslider<%= c %>"></div>
-      <span class="wavetext" id="wavetext<%= c %>">No data yet....</span>
-      </div>
-    </div>
+  <button class="chnbtn" id="chnbtn<%= c%>"><%= c %></button>
 <% } %>
+</div>
+
+
+
+<!-- <% for (var c = 1; c <= channels; c++) { %> -->
+<!--     <div id="channel<%= c %>" style="border: solid 0px; height: 130px"> -->
+<!--       <input type="checkbox" id="btnchn<%= c %>" class="btnchn"/><label for="btnchn<%= c %>">Channel <%= c %></label> -->
+<!--       <div class="wavedisplay" id="wavedisplay<%= c %>"> -->
+<!--       <a href="#" class="datadown" id="datadown<%= c %>">Download data</a> <span class="timetext" id="timetext<%= c %>"></span><br/> -->
+<!--       <input type="text" id="tval<%= c %>" style="border:0; color:#f6931f; font-weight:bold;" /> -->
+<!--       <div class="tslider" id="tslider<%= c %>"></div> -->
+<!--       <span class="wavetext" id="wavetext<%= c %>">No data yet....</span> -->
+<!--       </div> -->
+<!--     </div> -->
+<!-- <% } %> -->
 
 </body>
 </html>

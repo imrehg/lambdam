@@ -10,17 +10,23 @@ app.use(express.static(__dirname + '/public'));
 
 var io = require('socket.io').listen(app);
 
-var chn = new Array();
-for (var i = 0; i < 10; i++) {
-    chn.push(io.of('/chn'+i)
+var respserv = io.sockets
     .on('connection', function(socket) {
-	console.log(this.manager);
-	socket.emit('data', {back: 'to you'});
-    }));
-}
+	// console.log(this.manager);
+        // console.log("ROOOOOOOOOOOOOOOOOOM");
+        socket.join('lobby');
+        console.log(util.inspect(socket.manager.rooms));
+	socket.json.send({back: 'to you'});
+    })
+    .on('message', 
+	function(socket, data) {  
+            console.log("MESSAGE");
+            console.log(util.inspect(data));
+	    socket.json.send({received: data});
+	});
 
 io.configure(function(){
-    io.set('log level', 6);
+    io.set('log level', 1);
     io.set("transports", ["websocket"]);
     // io.set("destroy upgrade", false);
 });
@@ -45,12 +51,12 @@ function messageCenter(socket, msg) {
     }
 };
 
-io.sockets.on('connection', function (socket) {
-    console.log("--++ Connected: ", socket['id']);
-    socket.emit('settings', wmsettings);
-    socket.on('message', function(msg) { messageCenter(socket, msg);} );
-    socket.on('disconnect', function () { });
-});
+// io.sockets.on('connection', function (socket) {
+//     console.log("--++ Connected: ", socket['id']);
+//     socket.emit('settings', wmsettings);
+//     socket.on('message', function(msg) { messageCenter(socket, msg);} );
+//     socket.on('disconnect', function () { });
+// });
 
 // Dashboard
 app.get('/dash', function(request, response) {
