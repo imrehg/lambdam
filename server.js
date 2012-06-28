@@ -1,13 +1,23 @@
 
 // Import and setup
-var express = require('express');
-var uuid = require('node-uuid');
+var express = require('express'),
+    uuid = require('node-uuid'),
+    util = require('util');
 
 var app = express.createServer(express.logger());
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
 
 var io = require('socket.io').listen(app);
+
+var chn = new Array();
+for (var i = 0; i < 10; i++) {
+    chn.push(io.of('/chn'+i)
+    .on('connection', function(socket) {
+	console.log(this.manager);
+	socket.emit('data', {back: 'to you'});
+    }));
+}
 
 io.configure(function(){
     io.set('log level', 6);

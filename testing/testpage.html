@@ -12,7 +12,7 @@ div.maincontainer {
   font-size: 1em;
   border: 1px dashed;
   position: absolute;
-  top: 200px;
+  top: 100px;
 }
 
 div.display {
@@ -54,6 +54,14 @@ div.display {
     $( "#sortable" ).sortable();
     $( "#sortable" ).disableSelection();
 
+    $("#exposure2").progressbar({ value: 10 });
+    $( ".exposure" ).progressbar({ value: 37 });
+
+    $( "#progressbar" ).progressbar({
+			value: 37
+		});
+
+
     // Can add keyboard shortcuts
     key('a, left', function(){ alert('wanna go left?!'); return true; });
     key('d, right', function(){ alert('wanna go right?!'); return false; });
@@ -65,11 +73,28 @@ div.display {
 
 <div class="maincontainer">
 <ul id="sortable">
-	<li ><div class="display" id="display1">354.123456</div></i>
-	<li ><div class="display" id="display2">987.654321</div></i>
+<li >
+ <div class="console" id="console1">
+  <div class="display" id="display1">354.123456</div>
+  <div class="stuff">Hello
+    <div class="exposure" id="exposure1"></div>
+  </div>
+ </div>
+</li>
+<li >
+ <div class="console" id="console2">
+   <div class="display" id="display2">987.654321</div>
+   <div class="stuff">There!
+   <div class="exposure" id="exposure2" style="border: 3px solid;"></div>
+   Blah
+
+  </div>
+ </div>
+</li>
 </ul>
 
 </div>
 
+<div id="progressbar"></div>
 </body>
 </html>
