@@ -26,7 +26,7 @@ else:
 FORMAT = '%(asctime)-15s | %(message)s'
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger('wavemeter')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 settingsQ = mp.Queue()
 readingsQ = mp.Queue()
@@ -68,9 +68,10 @@ class RemoteClient(asyncore.dispatcher):
 
     def readable(self):
         """ Check if data is readable """
-        workaround = os.name in ['nt']
+        workaround = True
+        # workaround = os.name in ['nt']
         reading = not workaround
-        logger.debug("RC checking readable, %s", reading)
+        # logger.debug("RC checking readable, %s", reading)
         if workaround:
             # call manually the read function, because somehow
             # on Windows this doesn't get called even if the
@@ -90,7 +91,10 @@ class RemoteClient(asyncore.dispatcher):
                         realdata = json.loads(":".join(splits[3:]))
                         print "Realdata", realdata
                         if realdata['name'] == 'settings':
-                            self.sQ.put({'channels' : realdata['args'][0]})
+                            channels = []
+                            for k in realdata['args'][0]:
+                                channels += [(realdata['args'][0][k])]
+                            self.sQ.put({'channels' : channels})
                     except:
                         raise
             except:
@@ -129,7 +133,6 @@ class Wavemeter(threading.Thread):
             now = time()
             if not self.sQ.empty():
                 self.settings = self.sQ.get()
-            # print self.settings
             for ch in self.settings['channels']:
                 i = int(ch['num'])
                 t1 = int(ch['t1'])

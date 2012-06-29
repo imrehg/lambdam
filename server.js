@@ -15,6 +15,8 @@ function messageCenter(socket, msg) {
     console.log(msg);
 };
 
+// Store settings in memory as well
+var wmsettings = {};
 
 var respserv = io.of('/channels')
     .on('connection', function(socket) {
@@ -32,7 +34,22 @@ var respserv = io.of('/channels')
 		      console.log("UN-SUBBBBB");
 		      var room = data.channel;
 		      this.in(room).emit('message', "one leaving room "+room);
+		      var namespace = socket.namespace.name;
+		      var numlistener = socket.manager.rooms[namespace+'/'+room].length;
 		      socket.leave(room);
+		      // If no more listeners, remove settings
+		      if (numlistener < 2) {
+			  delete wmsettings[room];
+			  updateSettings();
+		      }
+		  });
+	socket.on('settings',
+		  function(data) {
+		      var num = data.num;
+		      var t1 = data.t1;
+		      var t2 = data.t2;
+		      wmsettings[num] = data;
+		      updateSettings();
 		  });
     });
 
@@ -41,24 +58,36 @@ io.configure(function(){
     io.set("transports", ["websocket"]);
 });
 
+var mainsocket = io.on('connection', function(socket) {
+    socket.on('message', function(data) {
+	console.log(data);
+	if (data.wavelength) {
+	    console.log("!!!!!!!!!!!!");
+	    respserv.in(data.channel).emit("message", data);
+	}
+    });
+});
+
+function updateSettings() {
+    console.log("New settings:");
+    console.log(wmsettings);
+    io.sockets.emit('settings', wmsettings);
+}
 
 // Main page
 app.get('/', function(request, response) {
     response.redirect('/dash');
 });
 
-// Store settings in memory as well
-var wmsettings = [];
-
-function messageCenter(socket, msg) {
-    console.log(msg);
-    if (msg['wavelength']) {
-	socket.broadcast.emit('update', msg['wavelength']);
-    } else if (msg['settings']) {
-	wmsettings = msg['settings'];
-	socket.broadcast.emit('settings', wmsettings);
-    }
-};
+// function messageCenter(socket, msg) {
+//     console.log(msg);
+//     if (msg['wavelength']) {
+// 	socket.broadcast.emit('update', msg['wavelength']);
+//     } else if (msg['settings']) {
+// 	wmsettings = msg['settings'];
+// 	socket.broadcast.emit('settings', wmsettings);
+//     }
+// };
 
 // io.sockets.on('connection', function (socket) {
 //     console.log("--++ Connected: ", socket['id']);
@@ -83,13 +112,13 @@ app.get('/chn1', function(req, res) {
     res.send("OK");
 });
 
-// Missing page: 404
-app.get('*', function(request, response) {
-  response.render('404.ejs', {
-      layout: false,
-      title: "Something went wrong"
-  });
-});
+// // Missing page: 404
+// app.get('*', function(request, response) {
+//   response.render('404.ejs', {
+//       layout: false,
+//       title: "Something went wrong"
+//   });
+// });
 
 // Start the app
 var port = process.env.PORT || 3000;
