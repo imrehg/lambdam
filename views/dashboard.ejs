@@ -56,6 +56,7 @@ div.chnbox {
 <script>
   var channels = {};
   var savedValues = new Array(<%= channels+1 %>);
+  var startTime= new Array(<%= channels+1 %>);
 
   function resizeText(element) {
      element.text('0123456789'); // 10 digit resize
@@ -69,6 +70,50 @@ div.chnbox {
      }
      $(element).text( $(line).text() );
   };
+
+  function pad(number, length) {
+    var str = '' + number;
+    while (str.length < length) {
+        str = '0' + str;
+    }
+    return str;
+  };
+
+  function dateFromUnix(timestamp) {
+   // From http://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript
+   // create a new javascript Date object based on the timestamp
+   // multiplied by 1000 so that the argument is in milliseconds, not seconds
+   var date = new Date(timestamp*1000);
+
+   var year = date.getFullYear();
+   var month = pad(date.getMonth()+1, 2);
+   var day = pad(date.getDate(), 2)
+   var hours = pad(date.getHours(), 2);
+   var minutes = pad(date.getMinutes(), 2);
+   var seconds = pad(date.getSeconds(), 2);
+
+   // will display time in 10:30:23 format
+   var formattedTime = year + month + day + "-" + hours + minutes + seconds;
+   return formattedTime;
+  };
+
+  function elapsedTime(time, channel) {
+    var seconds = time - startTime[channel];
+    if (seconds < 60) {
+       out = Math.round(seconds)+'s';
+    } else if (seconds < 3600) {
+       var minutes = Math.floor(seconds / 60);
+       var leftseconds = Math.floor(seconds) - minutes*60;
+       out = minutes + ":" + pad(leftseconds, 2) + 'm';
+    } else if (seconds > 3600) {
+       var hours = Math.floor(seconds / 3600);
+       var leftseconds = seconds - hours*3600;
+       var minutes = Math.floor(leftseconds / 60);
+       leftseconds = Math.floor(leftseconds) - minutes*60;
+       out = horus + ":" + pad(minutes, 2) + ":" + pad(leftseconds, 2) + 'h';
+    }
+    return out;
+  }
 
   // Take an item id and remove the base string from it
   function getNumFromId(id, idbase) {
@@ -96,10 +141,16 @@ div.chnbox {
             time = data['timestamp'];
         value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
         $("#wavetext"+channel).text(value);
+        savedValues[channel].push([time, value]);
+        if (startTime[channel] < 0) {
+            startTime[channel] = time;
+        }
+        $("#timetext"+channel).text(elapsedTime(time, channel));
     }
   })
 
   function changeChannel(chn) {
+     savedValues[chn] = new Array();
      if (chn in channels) {
         console.log("Disabling "+chn);
         conn.emit('unsubscribe', {channel: chn});
@@ -107,15 +158,18 @@ div.chnbox {
         $("#chnbtn"+chn).toggleClass("enabled");
         $('div#chnbox'+chn).hide();
 	delete savedValues[chn];
+        $("#wavedisplay"+chn).hide();
+        resizeText($( "#wavetext"+chn ));
      } else {
-	savedValues[chn] = new Array();
         console.log("Enabling "+chn);
         conn.emit('subscribe', {channel: chn});
 	sendSettings(chn);
         $("#chnbtn"+chn).toggleClass("enabled");
         channels[chn] = true;
         $('div#chnbox'+chn).show();
+        $("#wavedisplay"+chn).show();
         resizeText($( "#wavetext"+chn ));
+        startTime[chn] = -1;
      }
   }
 
@@ -166,6 +220,27 @@ div.chnbox {
          }
        });
 
+       // download accumulated data as csv
+       $(".datadown").click(function() {
+          console.log("CLICK!");
+          var id = $(this).attr('id');
+          var chn = id.slice(8,id.length+1);
+          var csv = '';
+          savedValues[chn].forEach(function(e) {
+             csv += e[0] + ',' + e[1] + '\n';
+          });
+          var timestamp = Math.round(+new Date()/1000);
+          this.download='CH'+chn+'-'+dateFromUnix(timestamp)+'.csv';
+	  // var encodeddata = 'data:text/csv;base64,' + btoa(csv);
+          // this.href = encodeddata;
+          // Fix from here: http://html5-demos.appspot.com/static/a.download.html
+          window.URL = window.webkitURL || window.URL;
+          window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder ||
+                       window.MozBlobBuilder;
+          var bb = new BlobBuilder();
+          bb.append(csv);
+          this.href = window.URL.createObjectURL(bb.getBlob("text/csv"));
+        });
   });
 
   <!-- function channelToggle(chn, turnon) { -->
