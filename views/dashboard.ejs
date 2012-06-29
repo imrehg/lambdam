@@ -58,6 +58,7 @@ div.chnbox {
   var savedValues = new Array(<%= channels+1 %>);
 
   function resizeText(element) {
+     element.text('0123456789'); // 10 digit resize
      var width = $(element).width(),
      html = '<span style="white-space:nowrap"></span>',
      line = $(element).wrapInner( html ).children()[ 0 ],
