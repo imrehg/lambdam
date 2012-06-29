@@ -4,8 +4,6 @@
 <link rel="stylesheet" href="/css/jquery-ui.css" type="text/css"/>
 <script src="/js/libs/jquery-1.7.2.min.js"></script>
 <script src="/js/libs/jquery-ui-1.8.19.custom.min.js"></script>
-<script src="/js/libs/d3.v2.js"></script>
-<script src="/js/libs/cubism.v1.js"></script>
 <script src="/js/libs/buckets.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <style>
@@ -133,7 +131,6 @@ div.chnbox {
     console.log("Connected");
   });
   conn.on('message', function(msg) {
-    console.log(msg);
     if (msg.wavelength) {
         data = msg.wavelength;
         var channel = data['channel'],
@@ -243,165 +240,9 @@ div.chnbox {
         });
   });
 
-  <!-- function channelToggle(chn, turnon) { -->
-  <!--   // Blank out saved value array both on enabling and disabling channels -->
-  <!--   savedValues[chn] = new Array(); -->
-  <!--   if (turnon == true) { -->
-  <!--     startTime[chn] = -1; -->
-  <!--     $("#wavedisplay"+chn).show();       -->
-  <!--   } else { -->
-  <!--     $("#wavedisplay"+chn).hide(); -->
-  <!--   } -->
-  <!-- }; -->
-
-  <!-- function pad(number, length) { -->
-  <!--   var str = '' + number; -->
-  <!--   while (str.length < length) { -->
-  <!--       str = '0' + str; -->
-  <!--   } -->
-  <!--   return str; -->
-  <!-- }; -->
-
-  <!-- function dateFromUnix(timestamp) { -->
-  <!--  // From http://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript -->
-  <!--  // create a new javascript Date object based on the timestamp -->
-  <!--  // multiplied by 1000 so that the argument is in milliseconds, not seconds -->
-  <!--  var date = new Date(timestamp*1000); -->
-
-  <!--  var year = date.getFullYear(); -->
-  <!--  var month = pad(date.getMonth()+1, 2); -->
-  <!--  var day = pad(date.getDate(), 2) -->
-  <!--  var hours = pad(date.getHours(), 2); -->
-  <!--  var minutes = pad(date.getMinutes(), 2); -->
-  <!--  var seconds = pad(date.getSeconds(), 2); -->
-
-  <!--  // will display time in 10:30:23 format -->
-  <!--  var formattedTime = year + month + day + "-" + hours + minutes + seconds; -->
-  <!--  return formattedTime; -->
-  <!-- }; -->
-
-  <!-- function elapsedTime(time, channel) { -->
-  <!--   var seconds = time - startTime[channel]; -->
-  <!--   if (seconds < 60) { -->
-  <!--      out = Math.round(seconds)+'s'; -->
-  <!--   } else if (seconds < 3600) { -->
-  <!--      var minutes = Math.floor(seconds / 60); -->
-  <!--      var leftseconds = Math.floor(seconds) - minutes*60; -->
-  <!--      out = minutes + ":" + pad(leftseconds, 2) + 'm'; -->
-  <!--   } else if (seconds > 3600) { -->
-  <!--      var hours = Math.floor(seconds / 3600); -->
-  <!--      var leftseconds = seconds - hours*3600; -->
-  <!--      var minutes = Math.floor(leftseconds / 60); -->
-  <!--      leftseconds = Math.floor(leftseconds) - minutes*60; -->
-  <!--      out = horus + ":" + pad(minutes, 2) + ":" + pad(leftseconds, 2) + 'h'; -->
-  <!--   } -->
-  <!--   return out; -->
-  <!-- } -->
-
-  <!-- var channels = new buckets.Set(); -->
-  <!-- var socket = io.connect(); -->
-  <!-- var savedValues = new Array(<%= channels+1 %>); -->
-  <!-- var startTime= new Array(<%= channels+1 %>); -->
-
-  <!-- $("document").ready(function() { -->
-  <!--      $(".wavedisplay").hide(); -->
-  <!--      $(".btnchn").button(); -->
-  <!--      $(".tslider").slider({ -->
-  <!--             value: 3, -->
-  <!--             min: 1, -->
-  <!--             max: 100, -->
-  <!--             slide: function( event, ui ) { -->
-  <!--                  var id = $(this).attr('id'); -->
-  <!--                  var chn = id.slice(7,id.length+1); -->
-  <!--                  var value = ui.value; -->
-  <!--                  $( "#tval"+chn ).val( value ); -->
-  <!--               }, -->
-  <!--             stop: function( event, ui ) { -->
-  <!--                  var charray = channels.toArray(); -->
-  <!--                  var settings = new Array(); -->
-  <!--                  channels.forEach(function(e) { -->
-  <!--                        var t = $('#tslider'+e).slider("value"); -->
-  <!--                        settings.push({"num": e, "t1": t, "t2": t}); -->
-  <!--                  }); -->
-  <!--                  socket.emit("message", {"settings": settings}); -->
-  <!--             } -->
-  <!--          }); -->
-  <!--      for(i=1; i <= <%= channels %>; i++) { -->
-  <!--        $( "#tval"+i ).val( $("#tslider"+i).slider("value") ); -->
-  <!--      } -->
-  <!--      $(".btnchn").click(function() { -->
-  <!--         var turnon = false; -->
-  <!--         if ($(this).is(':checked')) { -->
-  <!--            turnon = true; -->
-  <!--         } -->
-  <!--         var id = $(this).attr('id'); -->
-  <!--         var chn = id.slice(6,id.length+1); -->
-  <!--         channelToggle(chn, turnon); -->
-  <!--         if (turnon) { -->
-  <!--           channels.add(chn); -->
-  <!--           console.log("Add channel"); -->
-  <!--         } else { -->
-  <!--           channels.remove(chn); -->
-  <!--           console.log("Remove channel"); -->
-  <!--         } -->
-  <!--         var charray = channels.toArray(); -->
-  <!--         var settings = new Array(); -->
-  <!--         channels.forEach(function(e) { -->
-  <!--           settings.push({"num": e, "t1": 3, "t2": 3}); -->
-  <!--         }); -->
-  <!--         socket.emit("message", {"settings": settings}); -->
-  <!--         console.log(settings); -->
-  <!--       }); -->
-
-  <!--      // download accumulated data as csv -->
-  <!--      $(".datadown").click(function() { -->
-  <!--         console.log("CLICK!"); -->
-  <!--         var id = $(this).attr('id'); -->
-  <!--         var chn = id.slice(8,id.length+1); -->
-  <!--         var csv = ''; -->
-  <!--         savedValues[chn].forEach(function(e) { -->
-  <!--            csv += e[0] + ',' + e[1] + '\n'; -->
-  <!--         }); -->
-  <!--         var timestamp = Math.round(+new Date()/1000); -->
-  <!--         this.download='CH'+chn+'-'+dateFromUnix(timestamp)+'.csv'; -->
-  <!--         this.href='data:text/csv;base64,' + btoa(csv); -->
-  <!--       }); -->
-
-  <!-- }); -->
-
-  <!-- // Reload settings on page load -->
-  <!-- socket.on('settings', function (data) { -->
-  <!--   console.log("Settings", data); -->
-  <!--   for(i=0; i< data.length; i++) { -->
-  <!--       var num = data[i].num; -->
-  <!-- 	var t = data[i].t1; -->
-  <!--       channels.add(num); -->
-  <!--       channelToggle(num, true); -->
-  <!--       $('#btncn'+num).prop("checked", true); -->
-  <!-- 	console.log($('#btncn'+num).prop("checked")); -->
-  <!-- 	console.log("CheckState", $('#btncn'+num).is(':checked')); -->
-  <!--       $('#tslider'+num).slider({ value: t }); -->
-  <!--       $('#tval'+num).val(t); -->
-  <!--   } -->
-  <!-- }); -->
-  
-  <!-- socket.on('update', function (data) { -->
-  <!--   var channel = data['channel'] -->
-  <!--     , value = data['value'] -->
-  <!--     , time = data['timestamp']; -->
-  <!--   $("#wavetext"+channel).text(value); -->
-  <!--   savedValues[channel].push([time, value]); -->
-  <!--   if (startTime[channel] < 0) { -->
-  <!--       startTime[channel] = time; -->
-  <!--   } -->
-  <!--   $("#timetext"+channel).text(elapsedTime(time, channel)); -->
-  <!-- }); -->
-
 </script>
 </head>
 <body>
-
-<!-- <h2>Wavemeter channels</h2> -->
 
 <div id="maincontainer">
 
