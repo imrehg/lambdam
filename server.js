@@ -10,27 +10,36 @@ app.use(express.static(__dirname + '/public'));
 
 var io = require('socket.io').listen(app);
 
-var respserv = io.sockets
+function messageCenter(socket, msg) {
+    console.log("MESSAGE!");
+    console.log(msg);
+};
+
+
+var respserv = io.of('/channels')
     .on('connection', function(socket) {
-	// console.log(this.manager);
-        // console.log("ROOOOOOOOOOOOOOOOOOM");
-        socket.join('lobby');
+        socket.join('announce');
         console.log(util.inspect(socket.manager.rooms));
-	socket.json.send({back: 'to you'});
-    })
-    .on('message', 
-	function(socket, data) {  
-            console.log("MESSAGE");
-            console.log(util.inspect(data));
-	    socket.json.send({received: data});
-	});
+	socket.on('subscribe',
+		  function(data) {
+		      console.log("SUBBBBB");
+		      var room = data.channel;
+		      socket.join(room);
+		      this.in(room).emit('message', "new arrival to "+room);
+		  });
+	socket.on('unsubscribe',
+		  function(data) {
+		      console.log("UN-SUBBBBB");
+		      var room = data.channel;
+		      this.in(room).emit('message', "one leaving room "+room);
+		      socket.leave(room);
+		  });
+    });
 
 io.configure(function(){
-    io.set('log level', 1);
+    io.set('log level', 6);
     io.set("transports", ["websocket"]);
-    // io.set("destroy upgrade", false);
 });
-// End import and setup
 
 
 // Main page
@@ -67,6 +76,11 @@ app.get('/dash', function(request, response) {
       channels: 16,
       socket_id: socket_id
   });
+});
+
+app.get('/chn1', function(req, res) {
+    respserv.in('1').send("Some visit");
+    res.send("OK");
 });
 
 // Missing page: 404

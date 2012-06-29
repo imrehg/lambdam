@@ -32,7 +32,10 @@ button.enabled {
      return id.slice(idbase.length, id.length+1);
   }
 
-  var conn = io.connect();
+  var conn = io.connect('/channels');
+  conn.on('connect', function() {
+    console.log("Connected");
+  });
   conn.on('message', function(msg) {
     console.log(msg);
   })
@@ -40,16 +43,28 @@ button.enabled {
   function changeChannel(chn) {
      if (chn in channels) {
         console.log("Disabling "+chn);
-        $("#chnbtn"+chn).toggleClass("enabled");
-        <!-- conn.emit('unsubscribe', {room: chn}); -->
+        conn.emit('unsubscribe', {channel: chn});
         delete channels[chn];
-        <!-- console.log(channels); -->
+        $("#chnbtn"+chn).toggleClass("enabled");
      } else {
         console.log("Enabling "+chn);
+        conn.emit('subscribe', {channel: chn});
         $("#chnbtn"+chn).toggleClass("enabled");
-        conn.json.send({room: chn});
         channels[chn] = true;
      }
+     <!-- conn.send("???"); -->
+     <!-- if (chn in channels) { -->
+     <!--    console.log("Disabling "+chn); -->
+     <!--    $("#chnbtn"+chn).toggleClass("enabled"); -->
+     <!--    <\!-- conn.emit('unsubscribe', {room: chn}); -\-> -->
+     <!--    delete channels[chn]; -->
+     <!--    <\!-- console.log(channels); -\-> -->
+     <!-- } else { -->
+     <!--    console.log("Enabling "+chn); -->
+     <!--    $("#chnbtn"+chn).toggleClass("enabled"); -->
+     <!--    conn.json.send({room: chn}); -->
+     <!--    channels[chn] = true; -->
+     <!-- } -->
      
      <!-- conn.socket.join('room'); -->
      <!-- console.log(conn.socket); -->
