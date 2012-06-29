@@ -17,6 +17,7 @@ function messageCenter(socket, msg) {
 
 // Store settings in memory as well
 var wmsettings = {};
+var channelNum = 16;
 
 var respserv = io.of('/channels')
     .on('connection', function(socket) {
@@ -50,6 +51,19 @@ var respserv = io.of('/channels')
 		      var t2 = data.t2;
 		      wmsettings[num] = data;
 		      updateSettings();
+		  });
+	socket.on('disconnect',
+		  function() {
+		      for (var i = 1; i <= channelNum; i++) {
+			  var namespace = socket.namespace.name;
+			  if (socket.manager.roomClients[socket.id][namespace+'/'+i]) {
+			      var numlistener = socket.manager.rooms[namespace+'/'+i].length;
+			      if (numlistener < 2) {
+				  delete wmsettings[i];
+				  updateSettings();
+			      }
+			  }
+		      }
 		  });
     });
 
@@ -102,7 +116,7 @@ app.get('/dash', function(request, response) {
   response.render('dashboard.ejs', {
       layout: false,
       title: "Dashboard",
-      channels: 16,
+      channels: channelNum,
       socket_id: socket_id
   });
 });
