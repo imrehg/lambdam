@@ -94,7 +94,7 @@ div.chnbox {
         var channel = data['channel'],
             value = data['value'],
             time = data['timestamp'];
-        value = Math.round(value * 1000000)/1000000;
+        value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
         $("#wavetext"+channel).text(value);
     }
   })
