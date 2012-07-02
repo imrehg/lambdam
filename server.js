@@ -28,6 +28,8 @@ var respserv = io.of('/channels')
 		      console.log("SUBBBBB");
 		      var room = data.channel;
 		      socket.join(room);
+		      var sendset = wmsettings[room] || {'channel': room, 'newchannel': true};
+		      socket.emit('settings', sendset);;
 		      this.in(room).emit('message', "new arrival to "+room);
 		  });
 	socket.on('unsubscribe',

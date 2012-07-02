@@ -144,7 +144,15 @@ div.chnbox {
         }
         $("#timetext"+channel).text(elapsedTime(time, channel));
     }
-  })
+  });
+  conn.on('settings', function(msg) {
+    if (msg.newchannel) {
+      sendSettings(msg.channel);
+    } else {
+      $("#tval"+msg.num).val(msg.t1);
+      $("#tslider"+msg.num).slider("option", "value", msg.t1);
+    }
+  });
 
   function changeChannel(chn) {
      savedValues[chn] = new Array();
@@ -160,7 +168,6 @@ div.chnbox {
      } else {
         console.log("Enabling "+chn);
         conn.emit('subscribe', {channel: chn});
-	sendSettings(chn);
         $("#chnbtn"+chn).toggleClass("enabled");
         channels[chn] = true;
         $('div#chnbox'+chn).show();
