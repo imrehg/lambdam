@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="/css/jquery-ui.css" type="text/css"/>
 <script src="/js/libs/jquery-1.7.2.min.js"></script>
 <script src="/js/libs/jquery-ui-1.8.19.custom.min.js"></script>
-<script src="/js/libs/buckets.js"></script>
+<script src="/js/libs/underscore.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <style>
 .wavetext {
@@ -38,6 +38,10 @@ div#channelcontainer {
   margin-left: 130px;
 }
 
+.usedchannel {
+  border: 1px solid red;
+}
+
 #sortable { 
   list-style-type: none; 
   margin: 0; 
@@ -55,6 +59,7 @@ div.chnbox {
   var channels = {};
   var savedValues = new Array(<%= channels+1 %>);
   var startTime= new Array(<%= channels+1 %>);
+  var socketid;
 
   function resizeText(element) {
      element.text('0123456789'); // 10 digit resize
@@ -129,6 +134,7 @@ div.chnbox {
   var conn = io.connect('/channels');
   conn.on('connect', function() {
     console.log("Connected");
+    socketid = this.socket.sessionid;
   });
   conn.on('message', function(msg) {
     if (msg.wavelength) {
@@ -152,6 +158,17 @@ div.chnbox {
       $("#tval"+msg.num).val(msg.t1);
       $("#tslider"+msg.num).slider("option", "value", msg.t1);
     }
+  });
+  conn.on('rooms', function(msg) {
+     var rooms = msg;
+     for (room in rooms) {
+       console.log(room);
+       if (rooms[room].length > 0) {
+           $("#chnbtn"+room).addClass("usedchannel");
+       } else {
+           $("#chnbtn"+room).removeClass("usedchannel");
+       }
+     }
   });
 
   function changeChannel(chn) {

@@ -2,7 +2,8 @@
 // Import and setup
 var express = require('express'),
     uuid = require('node-uuid'),
-    util = require('util');
+    util = require('util'),
+    underscore = require('underscore');
 
 var app = express.createServer(express.logger());
 app.use(express.bodyParser());
@@ -17,20 +18,43 @@ function messageCenter(socket, msg) {
 
 // Store settings in memory as well
 var wmsettings = {};
+var rooms = {};
 var channelNum = 16;
+
+// Add socket ID to the room collection
+function roomAdd(id, room) {
+    if (!rooms[room]) {
+	rooms[room] = new Array();
+    }
+    rooms[room].push(id);
+    console.log(rooms);
+}
+
+function roomRemove(id, room) {
+    if (room) {
+	rooms[room] = underscore.difference(rooms[room], [id]);
+    } else {
+	for (room in rooms) {
+	    rooms[room] = underscore.difference(rooms[room], [id]);
+	}
+    }
+    console.log(rooms);
+}
 
 var respserv = io.of('/channels')
     .on('connection', function(socket) {
         socket.join('announce');
+	socket.emit('rooms', rooms);
         console.log(util.inspect(socket.manager.rooms));
 	socket.on('subscribe',
 		  function(data) {
 		      console.log("SUBBBBB");
 		      var room = data.channel;
 		      socket.join(room);
+		      roomAdd(socket.id, room);
 		      var sendset = wmsettings[room] || {'channel': room, 'newchannel': true};
-		      socket.emit('settings', sendset);;
-		      this.in(room).emit('message', "new arrival to "+room);
+		      socket.emit('settings', sendset);
+		      socket.broadcast.emit('rooms', rooms);
 		  });
 	socket.on('unsubscribe',
 		  function(data) {
@@ -40,11 +64,13 @@ var respserv = io.of('/channels')
 		      var namespace = socket.namespace.name;
 		      var numlistener = socket.manager.rooms[namespace+'/'+room].length;
 		      socket.leave(room);
+		      roomRemove(socket.id, room);
 		      // If no more listeners, remove settings
 		      if (numlistener < 2) {
 			  delete wmsettings[room];
 			  updateSettings();
 		      }
+		      socket.broadcast.emit('rooms', rooms);
 		  });
 	socket.on('settings',
 		  function(data) {
@@ -56,6 +82,8 @@ var respserv = io.of('/channels')
 		  });
 	socket.on('disconnect',
 		  function() {
+		      roomRemove(socket.id);
+		      socket.broadcast.emit('rooms', rooms);
 		      for (var i = 1; i <= channelNum; i++) {
 			  var namespace = socket.namespace.name;
 			  if (socket.manager.roomClients[socket.id][namespace+'/'+i]) {
