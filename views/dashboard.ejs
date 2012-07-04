@@ -12,8 +12,18 @@
   font-family: monospace;
 }
 
+button{
+    display:block;
+    margin: 5px;
+    border: 3px solid rgb(230, 230, 230);
+}
+
 button.enabled {
-  background: green;
+    background: green;
+}
+
+button.usedchannel {
+    border: 3px solid red;
 }
 
 div#maincontainer {
@@ -36,10 +46,6 @@ div#channelcontainer {
   font-size: 1em;
   border: 1px dashed;
   margin-left: 130px;
-}
-
-.usedchannel {
-  border: 1px solid red;
 }
 
 #sortable { 
@@ -162,12 +168,8 @@ div.chnbox {
   conn.on('rooms', function(msg) {
      var rooms = msg;
      for (room in rooms) {
-       console.log(room);
-       if (rooms[room].length > 0) {
-           $("#chnbtn"+room).addClass("usedchannel");
-       } else {
-           $("#chnbtn"+room).removeClass("usedchannel");
-       }
+       var mark = ((rooms[room].length > 1) || ((rooms[room][0]) && (rooms[room][0] !== socketid))) ? true : false;
+       $("#chnbtn"+room).toggleClass("usedchannel", mark);
      }
   });
 
@@ -273,7 +275,7 @@ div.chnbox {
 <div id="channellist">
 <span style="font-size: large;">Channels</span><br>
 <% for (var c = 1; c <= channels; c++) { %>
-  <button class="chnbtn" id="chnbtn<%= c%>"><%= c %></button>
+  <button class="chnbtn ui-corner-all" id="chnbtn<%= c%>"><%= c %></button>
 <% } %>
 </div>
 
