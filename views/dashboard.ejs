@@ -60,6 +60,41 @@ div.chnbox {
   width: 100%;
 }
 
+div.infobox {
+  position: relative;
+  left: 100px;
+}
+
+div.exposure {
+  position: relative;
+  width: 120px;
+  height: 20px;
+  border-radius: 9px;
+  border: 1px solid;
+}
+
+.exposurebar { 
+  width: 0%;
+  height:18px; 
+  margin: 1px 0px;  
+  position:absolute;
+  border-radius: 9px;
+  background-color: #66cc66;
+}
+
+div.exposure h4 {
+  position: relative;
+  top:-40px;
+}
+
+.lowexpose {
+  background-color: #6666cc;
+}
+
+.highexpose {
+  background-color: #cc6666;
+}
+
 </style>
 <script>
   var channels = {};
@@ -147,7 +182,8 @@ div.chnbox {
         data = msg.wavelength;
         var channel = data['channel'],
             value = data['value'],
-            time = data['timestamp'];
+            time = data['timestamp'],
+            exposureval = data['exposure'];
         value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
         $("#wavetext"+channel).text(value);
         savedValues[channel].push([time, value]);
@@ -155,6 +191,9 @@ div.chnbox {
             startTime[channel] = time;
         }
         $("#timetext"+channel).text(elapsedTime(time, channel));
+	if (exposureval) {
+	    exposure(channel, exposureval)
+	}
     }
   });
   conn.on('settings', function(msg) {
@@ -194,6 +233,16 @@ div.chnbox {
         resizeText($( "#wavetext"+chn ));
         startTime[chn] = -1;
      }
+  }
+
+  function expobar(chn, exposure) {
+        var exbar = $("#exposurebar"+chn)
+        exbar.css("width", exposure+"%");
+        var highex = (exposure > 80) ? true : false;
+        var lowex = (exposure < 20) ? true : false;
+	console.log(lowex);
+	exbar.toggleClass("highexpose", highex)
+	exbar.toggleClass("lowexpose", lowex)
   }
 
   // Things for when we are ready to manipulate the page
@@ -290,6 +339,9 @@ div.chnbox {
       <input type="text" id="tval<%= c %>" style="border:0; color:#f6931f; font-weight:bold;" />
       <div class="tslider" id="tslider<%= c %>"></div>
       <div class="wavetext" id="wavetext<%= c %>">Waiting...</div>
+      <div class="infobox">
+       <div class="exposure"><span class="exposurebar" id="exposurebar<%= c %>"></span><h4>Exposure</h4></div>
+      </div>
       </div>
     </div>
 </li >
