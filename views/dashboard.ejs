@@ -13,13 +13,12 @@
 }
 
 button{
-    display:block;
     margin: 5px;
     border: 3px solid rgb(230, 230, 230);
 }
 
 button.enabled {
-    background: green;
+    background: lightblue;
 }
 
 button.usedchannel {
@@ -93,6 +92,23 @@ div.exposure h4 {
 
 .highexpose {
   background-color: #cc6666;
+}
+
+#chnlines {
+  border: 1px solid;
+  list-style: none;
+  width: 120px;
+  margin: 0px;
+  position: relative;
+  line-height: 2em;
+  padding: 0 0;
+}
+
+.chnline {
+}
+
+.chnname {
+  width: 80px;
 }
 
 </style>
@@ -211,6 +227,11 @@ div.exposure h4 {
        $("#chnbtn"+room).toggleClass("usedchannel", mark);
      }
   });
+  conn.on('namechange', function(msg) {
+     for (chn in msg) {
+        $("#chnname"+chn).val(msg[chn]);
+     }
+  });
 
   function changeChannel(chn) {
      savedValues[chn] = new Array();
@@ -313,6 +334,21 @@ div.exposure h4 {
           bb.append(csv);
           this.href = window.URL.createObjectURL(bb.getBlob("text/csv"));
         });
+
+        // Channel naming routines
+        var chnname = '';
+        $(".chnname").focusin(function() {
+           chnname = $(this).val();
+	});
+
+        $(".chnname").focusout(function() {
+           var newname = $(this).val();
+           if (newname !== chnname) {
+             var chn = getNumFromId($(this).attr('id'), "chnname");
+             conn.emit('namechange', {channel: chn, name: newname});
+             console.log("Name change:"+chn+": "+chnname+'->'+newname);
+           }
+	});
   });
 
 </script>
@@ -323,9 +359,11 @@ div.exposure h4 {
 
 <div id="channellist">
 <span style="font-size: large;">Channels</span><br>
+<ul id="chnlines">
 <% for (var c = 1; c <= channels; c++) { %>
-  <button class="chnbtn ui-corner-all" id="chnbtn<%= c%>"><%= c %></button>
+  <li class="chnline"><button class="chnbtn ui-corner-all" id="chnbtn<%= c%>"><%= c %></button><input class="chnname" id="chnname<%= c%>"/></li>
 <% } %>
+</ul>
 </div>
 
 <div id="channelcontainer">

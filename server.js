@@ -20,6 +20,7 @@ function messageCenter(socket, msg) {
 var wmsettings = {};
 var rooms = {};
 var channelNum = 16;
+var chnnames = {};
 
 // Add socket ID to the room collection
 function roomAdd(id, room) {
@@ -46,6 +47,7 @@ var respserv = io.of('/channels')
     .on('connection', function(socket) {
         socket.join('announce');
 	socket.emit('rooms', rooms);
+	socket.emit('namechange', chnnames);
         console.log(util.inspect(socket.manager.rooms));
 	socket.on('subscribe',
 		  function(data) {
@@ -95,6 +97,13 @@ var respserv = io.of('/channels')
 			      }
 			  }
 		      }
+		  });
+	socket.on('namechange',
+		  function(data) {
+		      var chn = data.channel;
+		      var name = data.name;
+		      chnnames[chn] = name;
+		      socket.broadcast.emit('namechange', chnnames);
 		  });
     });
 
