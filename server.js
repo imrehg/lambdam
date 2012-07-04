@@ -30,6 +30,7 @@ function roomAdd(id, room) {
     console.log(rooms);
 }
 
+// Remove socked ID from a room, or all rooms if a room number is not specified
 function roomRemove(id, room) {
     if (room) {
 	rooms[room] = underscore.difference(rooms[room], [id]);
