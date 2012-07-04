@@ -82,6 +82,7 @@ var respserv = io.of('/channels')
 		      var t2 = data.t2;
 		      wmsettings[num] = data;
 		      updateSettings();
+		      this.in(num).broadcast.emit('settings', data);
 		  });
 	socket.on('disconnect',
 		  function() {
