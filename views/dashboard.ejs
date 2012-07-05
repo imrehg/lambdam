@@ -112,6 +112,10 @@ div.exposure h4 {
   width: 85px;
 }
 
+.chntitle {
+  font-weight: bold;
+}
+
 </style>
 <script>
   var channels = {};
@@ -231,6 +235,7 @@ div.exposure h4 {
   conn.on('namechange', function(msg) {
      for (chn in msg) {
         $("#chnname"+chn).val(msg[chn]);
+	setNameBanner(chn, msg[chn]);
      }
   });
 
@@ -265,6 +270,14 @@ div.exposure h4 {
 	console.log(lowex);
 	exbar.toggleClass("highexpose", highex)
 	exbar.toggleClass("lowexpose", lowex)
+  }
+
+  function setNameBanner(chn, name) {
+      var bannername = "Channel "+chn
+      if (name.length > 0) {
+	  bannername += ": "+name
+      }
+      $("#chntitle"+chn).html(bannername);
   }
 
   // Things for when we are ready to manipulate the page
@@ -348,6 +361,7 @@ div.exposure h4 {
              var chn = getNumFromId($(this).attr('id'), "chnname");
              conn.emit('namechange', {channel: chn, name: newname});
              console.log("Name change:"+chn+": "+chnname+'->'+newname);
+             setNameBanner(chn, newname);
            }
 	});
   });
@@ -372,7 +386,7 @@ div.exposure h4 {
 <% for (var c = 1; c <= channels; c++) { %>
 <li >
     <div class="chnbox" id="chnbox<%= c %>">
-      <span>Channel <%= c %></span>
+      <span id="chntitle<%= c %>" class="chntitle">Channel <%= c %></span>
       <div class="wavedisplay" id="wavedisplay<%= c %>">
       <a href="#" class="datadown" id="datadown<%= c %>">Download data</a> <span class="timetext" id="timetext<%= c %>"></span><br/>
       <input type="text" id="tval<%= c %>" style="border:0; color:#f6931f; font-weight:bold;" />
