@@ -304,15 +304,8 @@ div.exposure h4 {
                    $( "#tval"+chn ).val( value );
                 },
               stop: function( event, ui ) {
-                   <!-- var t = $(this).slider("value"); -->
                    var chn = getNumFromId(this.id, 'tslider');
 		   sendSettings(chn);
-                   <!-- var settings = new Array(); -->
-                   <!-- channels.forEach(function(e) { -->
-                   <!--       var t = $('#tslider'+e).slider("value"); -->
-                   <!--       settings.push({"num": e, "t1": t, "t2": t}); -->
-                   <!-- }); -->
-                   <!-- socket.emit("message", {"settings": settings}); -->
               }
            });
        for(i=1; i <= <%= channels %>; i++) {
