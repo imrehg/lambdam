@@ -6,7 +6,7 @@ import random
 import asyncore, socket
 
 from time import sleep
-from socketIO import SocketIO
+from socketIO import SocketIO, websocket
 import logging
 import os
 import serial
@@ -176,5 +176,10 @@ while True:
         wavemeterThread.close()
         print "Done"
         break
+    except (websocket.WebSocketException):
+        raise
+        print "Broken connection"
+        break
+    
 
 
