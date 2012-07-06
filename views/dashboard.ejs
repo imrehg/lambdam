@@ -210,17 +210,22 @@ div.exposure h4 {
             value = data['value'],
             time = data['timestamp'],
             exposureval = data['exposure'];
-        value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
-        $("#wavetext"+channel).text(value);
-        savedValues[channel].push([time, value]);
-        savedValuesPlot[channel].append(time*1000, value);
-        if (startTime[channel] < 0) {
-            startTime[channel] = time;
+	if (value < 0) {
+	    if (value == -3) { value = "Underexp" }
+	    else if (value == -4) { value = "Overexp" }
+	} else {
+            value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
+            $("#wavetext"+channel).text(value);
+            savedValues[channel].push([time, value]);
+            savedValuesPlot[channel].append(time*1000, value);
+            if (startTime[channel] < 0) {
+                startTime[channel] = time;
+            }
+            $("#timetext"+channel).text(elapsedTime(time, channel));
+            if (exposureval) {
+	        exposure(channel, exposureval)
+	    }
         }
-        $("#timetext"+channel).text(elapsedTime(time, channel));
-	if (exposureval) {
-	    exposure(channel, exposureval)
-	}
     }
   });
   conn.on('settings', function(msg) {
