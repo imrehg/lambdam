@@ -177,7 +177,6 @@ while True:
         print "Done"
         break
     except (websocket.WebSocketException):
-        raise
         print "Broken connection"
         break
     
