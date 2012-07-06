@@ -6,6 +6,7 @@
 <script src="/js/libs/jquery-ui-1.8.19.custom.min.js"></script>
 <script src="/js/libs/underscore.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="/js/libs/smoothie.js"></script>
 <style>
 .wavetext {
   font-size: xx-large;
@@ -120,8 +121,12 @@ div.exposure h4 {
 <script>
   var channels = {};
   var savedValues = new Array(<%= channels+1 %>);
+  var savedValuesPlot = new Array(<%= channels+1 %>);
   var startTime= new Array(<%= channels+1 %>);
   var socketid;
+  var smoothie = new SmoothieChart();
+  <!-- smoothie.streamTo(document.getElementById("plot1")); -->
+  <!-- console.log(document.getElementById("plot1")); -->
 
   function resizeText(element) {
      element.text('0123456789'); // 10 digit resize
@@ -208,6 +213,7 @@ div.exposure h4 {
         value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
         $("#wavetext"+channel).text(value);
         savedValues[channel].push([time, value]);
+        savedValuesPlot[channel].append(time*1000, value);
         if (startTime[channel] < 0) {
             startTime[channel] = time;
         }
@@ -241,6 +247,7 @@ div.exposure h4 {
 
   function changeChannel(chn) {
      savedValues[chn] = new Array();
+     savedValuesPlot[chn] = new TimeSeries();
      if (chn in channels) {
         console.log("Disabling "+chn);
         conn.emit('unsubscribe', {channel: chn});
@@ -250,6 +257,7 @@ div.exposure h4 {
 	delete savedValues[chn];
         $("#wavedisplay"+chn).hide();
         resizeText($( "#wavetext"+chn ));
+        smoothie.stop();
      } else {
         console.log("Enabling "+chn);
         conn.emit('subscribe', {channel: chn});
@@ -259,6 +267,9 @@ div.exposure h4 {
         $("#wavedisplay"+chn).show();
         resizeText($( "#wavetext"+chn ));
         startTime[chn] = -1;
+
+	smoothie.addTimeSeries(savedValuesPlot[chn]);
+        smoothie.start();
      }
   }
 
@@ -357,6 +368,14 @@ div.exposure h4 {
              setNameBanner(chn, newname);
            }
 	});
+        smoothie.streamTo(document.getElementById("plot1"));
+	smoothie.options.fps = 40;
+	smoothie.options.interpolation = 'line';
+	<!-- Being able to change the time scale of the charts like that:  -->
+	<!-- smoothie.options.millisPerPixel = 1000; -->
+        <!-- smoothie.options.grid.millisPerLine = 60000; -->
+	<!-- console.log(smoothie); -->
+	smoothie.stop();
   });
 
 </script>
@@ -387,6 +406,7 @@ div.exposure h4 {
       <div class="wavetext" id="wavetext<%= c %>">Waiting...</div>
       <div class="infobox">
        <div class="exposure"><span class="exposurebar" id="exposurebar<%= c %>"></span><h4>Exposure</h4></div>
+       <canvas id="plot<%= c %>" width="1000" height="200" style="border: 1px solid;"></canvas>
       </div>
       </div>
     </div>
