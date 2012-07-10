@@ -175,12 +175,12 @@ div.exposure h4 {
        var minutes = Math.floor(seconds / 60);
        var leftseconds = Math.floor(seconds) - minutes*60;
        out = minutes + ":" + pad(leftseconds, 2) + 'm';
-    } else if (seconds > 3600) {
+    } else {
        var hours = Math.floor(seconds / 3600);
        var leftseconds = seconds - hours*3600;
        var minutes = Math.floor(leftseconds / 60);
        leftseconds = Math.floor(leftseconds) - minutes*60;
-       out = horus + ":" + pad(minutes, 2) + ":" + pad(leftseconds, 2) + 'h';
+       out = hours + ":" + pad(minutes, 2) + ":" + pad(leftseconds, 2) + 'h';
     }
     return out;
   }
