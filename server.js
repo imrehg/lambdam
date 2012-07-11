@@ -21,6 +21,7 @@ var wmsettings = {};
 var rooms = {};
 var channelNum = 16;
 var chnnames = {};
+var lastReading = {};
 
 // Add socket ID to the room collection
 function roomAdd(id, room) {
@@ -117,8 +118,9 @@ var mainsocket = io.on('connection', function(socket) {
     socket.on('message', function(data) {
 	console.log(data);
 	if (data.wavelength) {
-	    console.log("!!!!!!!!!!!!");
-	    respserv.in(data.channel).emit("message", data);
+            console.log("!!!!!!!!!!!! ");
+            respserv.in(data.wavelength.channel).emit("message", data);
+            lastReading[data.wavelength.channel] = data;
 	}
     });
 });
@@ -128,6 +130,16 @@ function updateSettings() {
     console.log(wmsettings);
     io.sockets.emit('settings', wmsettings);
 }
+
+app.get('/wavelength', function (req, res) {
+    res.json(lastReading);
+});
+
+app.get('/wavelength/:chn', function (req, res) {
+    var chn = req.params.chn;
+    var out = lastReading[chn] || { error: "No information for channel "+chn };
+    res.json(out);
+});
 
 // Main page
 app.get('/', function(request, response) {
