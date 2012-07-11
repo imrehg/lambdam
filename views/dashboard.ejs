@@ -117,6 +117,10 @@ div.exposure h4 {
   font-weight: bold;
 }
 
+#windowname {
+  width: 100px;
+}
+
 </style>
 <script>
   var channels = {};
@@ -405,6 +409,16 @@ div.exposure h4 {
 	<!-- Being able to change the time scale of the charts like that:  -->
 	<!-- smoothie.options.millisPerPixel = 1000; -->
         <!-- smoothie.options.grid.millisPerLine = 60000; -->
+
+        if (localStorage) {
+           console.log(localStorage);
+           $("#windowname").val(localStorage.getItem('dashboardname') || "New "+Math.floor(Math.random()*9999));
+        }
+
+        $("#windowname").focusout(function() {
+	   localStorage.setItem('dashboardname', $(this).val());
+	});
+
   });
 
 </script>
@@ -414,6 +428,8 @@ div.exposure h4 {
 <div id="maincontainer">
 
 <div id="channellist">
+<input id="windowname" value=""/>
+
 <span style="font-size: large;">Channels</span><br>
 <ul id="chnlines">
 <% for (var c = 1; c <= channels; c++) { %>
