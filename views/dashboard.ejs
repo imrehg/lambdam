@@ -247,7 +247,7 @@ div.exposure h4 {
 	} else {
             value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
 
-            savedValues[channel].push([time, value]);
+            savedValues[channel].push([time, value, msg.temperature.toFixed(3)]);
             savedValuesPlot[channel].append(time*1000, value);
             if (startTime[channel] < 0) {
                 startTime[channel] = time;
@@ -421,7 +421,7 @@ div.exposure h4 {
           var chn = id.slice(8,id.length+1);
           var csv = '';
           savedValues[chn].forEach(function(e) {
-             csv += e[0] + ',' + e[1] + '\n';
+             csv += e[0] + ',' + e[1] + ',' + e[2] + '\n';
           });
           var timestamp = Math.round(+new Date()/1000);
           this.download='CH'+chn+'-'+dateFromUnix(timestamp)+'.csv';
