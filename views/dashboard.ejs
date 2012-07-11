@@ -30,10 +30,18 @@ button.usedchannel {
 
 div#maincontainer {
   font-size: 1em;
+  position: absolute;
+  width: 100%;
+  border: 1px dashed;
+  top: 40px;
+}
+
+div#topbarr {
+  font-size: 1em;
   position: relative;
   width: 100%;
   border: 1px dashed;
-  top: 30px;
+  top: 0px;
 }
 
 div#channellist {
@@ -122,6 +130,14 @@ div.exposure h4 {
   width: 100px;
 }
 
+.topbaritem {
+  font-weight: bold;
+  border: 1px solid black;
+  float: left;
+  padding: 4px;
+  width: 140px;
+}
+
 </style>
 <script>
   var channels = {};
@@ -133,6 +149,7 @@ div.exposure h4 {
   for (var i = 1; i < <%= channels+1 %>; i++) {
     charts[i] = new SmoothieChart();
   }
+  var topupdate = new Array(<%= channels+1 %>);
 
   function resizeText(element) {
      element.text('0123456789'); // 10 digit resize
@@ -222,6 +239,9 @@ div.exposure h4 {
 	} else {
             value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
             $("#wavetext"+channel).text(value);
+            if (topupdate[channel]) {
+		    topupdate[channel](value);
+		    }
             savedValues[channel].push([time, value]);
             savedValuesPlot[channel].append(time*1000, value);
             if (startTime[channel] < 0) {
@@ -269,6 +289,8 @@ div.exposure h4 {
         $("#wavedisplay"+chn).hide();
         resizeText($( "#wavetext"+chn ));
         charts[chn].stop();
+        $('#topbar'+chn).remove();
+        topupdate[chn] = undefined;
      } else {
         console.log("Enabling "+chn);
         conn.emit('subscribe', {channel: chn});
@@ -281,6 +303,10 @@ div.exposure h4 {
 
 	charts[chn].addTimeSeries(savedValuesPlot[chn]);
         charts[chn].start();
+
+        $('#topbar').append('<div id="topbar'+chn+'" class="topbaritem">Ch '+chn+':</div>');
+        var thistop = document.getElementById("topbar"+chn);
+        topupdate[chn] = function(val) { thistop.innerHTML = "Ch "+ chn+": "+val;}
      }
   }
 
@@ -425,6 +451,8 @@ div.exposure h4 {
 </script>
 </head>
 <body>
+
+<div id="topbar"></div>
 
 <div id="maincontainer">
 
