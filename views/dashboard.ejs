@@ -232,26 +232,34 @@ div.exposure h4 {
         var channel = data['channel'],
             value = data['value'],
             time = data['timestamp'],
-            exposureval = data['exposure'];
+            exposureval = data['exposureval'];
 	if (value < 0) {
 	    if (value == -3) { value = "Underexp" }
 	    else if (value == -4) { value = "Overexp" }
 	} else {
             value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
-            $("#wavetext"+channel).text(value);
-            if (topupdate[channel]) {
-		    topupdate[channel](value);
-		    }
+
             savedValues[channel].push([time, value]);
             savedValuesPlot[channel].append(time*1000, value);
             if (startTime[channel] < 0) {
                 startTime[channel] = time;
             }
             $("#timetext"+channel).text(elapsedTime(time, channel));
+
             if (exposureval) {
-	        exposure(channel, exposureval)
+	        expobar(channel, Math.floor(exposureval/3000 * 100))
 	    }
         }
+
+        if (exposureval) {
+	    expobar(channel, Math.floor(exposureval/4000 * 100))
+	}
+        // Show readings
+        $("#wavetext"+channel).text(value);
+        if (topupdate[channel]) {
+	    topupdate[channel](value);
+	}
+
     }
   });
   conn.on('settings', function(msg) {
@@ -307,15 +315,22 @@ div.exposure h4 {
         $('#topbar').append('<div id="topbar'+chn+'" class="topbaritem">Ch '+chn+':</div>');
         var thistop = document.getElementById("topbar"+chn);
         topupdate[chn] = function(val) { thistop.innerHTML = "Ch "+ chn+": "+val;}
+
+        $(".longplot").css('width', chartwidth);
+
      }
   }
 
   function expobar(chn, exposure) {
+        if (exposure > 100) {
+            exposure = 100;
+        } else if (exposure < 0) {
+            exposure = 0;
+        }
         var exbar = $("#exposurebar"+chn)
         exbar.css("width", exposure+"%");
         var highex = (exposure > 80) ? true : false;
         var lowex = (exposure < 20) ? true : false;
-	console.log(lowex);
 	exbar.toggleClass("highexpose", highex)
 	exbar.toggleClass("lowexpose", lowex)
   }

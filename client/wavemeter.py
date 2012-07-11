@@ -152,12 +152,20 @@ class Wavemeter(threading.Thread):
                         logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                     sleep(totalt) # wait
                     self.vals[i] = wmdriver.GetWavelength()
+                    imax1, imax2 = wmdriver.GetInterferenceStats(wmdriver.cMax1), wmdriver.GetInterferenceStats(wmdriver.cMax2);
+                    intermax = imax1 if imax1 > imax2 else imax2
                 else:
                     sleep(totalt)
                     self.vals[i] += gauss(0, 0.01)
+                    intermax = 1000;
                 logger.debug("Channel %d: measured %f" %(i, self.vals[i]))
                 timestamp = time()
-                self.rQ.put({"wavelength" : { "channel": i, "value": self.vals[i], "timestamp": timestamp}})
+                self.rQ.put({"wavelength" : { "channel": i,
+                                              "value": self.vals[i],
+                                              "timestamp": timestamp,
+                                              "exposureval": intermax,
+                                              }
+                             })
             self.done.wait(self.interval)
 
 if not dummy:

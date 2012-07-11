@@ -24,6 +24,15 @@ cInstControlWLM = long(3)
 cInstControlDelay = long(4)
 cInstControlPriority = long(5)
 
+# Amplitude Constants
+cMin1 = long(0);
+cMin2 = long(1);
+cMax1 = long(2);
+cMax2 = long(3);
+cAvg1 = long(4);
+cAvg2 = long(5);
+validAmps = [cMin1, cMin2, cMax1, cMax2, cAvg1, cAvg2]
+
 getexposure = wlm.GetExposureNum
 getexposure.restype = long
 def GetExposure():
@@ -51,3 +60,13 @@ getwave.restype = double
 def GetWavelength():
     """ Get a single frequency reading """
     return getwave(DZERO)
+
+getinterferencestats = wlm.GetAmplitudeNum
+getinterferencestats.restype = long
+def GetInterferenceStats(info=cMax1):
+    """ Get interference pattern stats """
+    if (info in validAmps):
+        out = getinterferencestats(long(1), info, LZERO)
+    else:
+        out = None;
+    return out;
