@@ -166,6 +166,14 @@ class Wavemeter(threading.Thread):
                                               "exposureval": intermax,
                                               }
                              })
+            # Return the temperature after one round;
+            if not dummy:
+                temperature = wmdriver.GetTemperature()
+            else:
+                temperature = 21
+            self.rQ.put({"temperature" : temperature, "timestamp": time()});
+            if (len(self.settings['channels']) < 1):
+                sleep(0.1)
             self.done.wait(self.interval)
 
 if not dummy:

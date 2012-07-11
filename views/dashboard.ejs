@@ -138,6 +138,13 @@ div.exposure h4 {
   width: 140px;
 }
 
+#tempfield {
+  font-weight: bold;
+  border: 1px solid red;
+  float: left;
+  padding: 4px;
+}
+
 </style>
 <script>
   var channels = {};
@@ -260,7 +267,9 @@ div.exposure h4 {
         if (topupdate[channel]) {
 	    topupdate[channel](value);
 	}
-
+    }
+    if (msg.temperature) {
+        displayTemp(msg.temperature);
     }
   });
   conn.on('settings', function(msg) {
@@ -334,6 +343,10 @@ div.exposure h4 {
         var lowex = (exposure < 20) ? true : false;
 	exbar.toggleClass("highexpose", highex)
 	exbar.toggleClass("lowexpose", lowex)
+  }
+
+  function displayTemp(temp) {
+        document.getElementById("tempfield").innerHTML = "T:"+parseFloat(temp).toFixed(2)+"C";
   }
 
   function switchplot(radio, level) {
@@ -472,7 +485,9 @@ div.exposure h4 {
 </head>
 <body>
 
-<div id="topbar"></div>
+<div id="topbar">
+<div id="tempfield">T:</tempbar>
+</div>
 
 <div id="maincontainer">
 

@@ -70,3 +70,8 @@ def GetInterferenceStats(info=cMax1):
     else:
         out = None;
     return out;
+
+gettemperature = wlm.GetTemperature
+gettemperature.restype = double
+def GetTemperature():
+    return gettemperature(DZERO);
