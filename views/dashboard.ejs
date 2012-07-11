@@ -289,6 +289,19 @@ div.exposure h4 {
 	exbar.toggleClass("lowexpose", lowex)
   }
 
+  function switchplot(radio, level) {
+	var id = radio.getAttribute('id');
+	var chn = getNumFromId(id, "radio1_");
+	console.log(chn, level);
+        var times = [15, 5*60, 60*60];
+        var lines = [1, 60, 5*60];
+        var mpp = times[level-1] * 1000 / 800;
+        var mpl = lines[level-1] * 1000;
+        console.log(mpp, mpl);
+        charts[chn].options.millisPerPixel = mpp;
+        charts[chn].options.grid.millisPerLine = mpl;
+  }
+
   function setNameBanner(chn, name) {
       var bannername = "Channel "+chn
       if (name.length > 0) {
@@ -375,11 +388,19 @@ div.exposure h4 {
            }
 	});
 
+        $( ".longplottoggle").click( function() {
+             var chn = getNumFromId($(this).attr('id'), "longplottoggle");
+             $("#longplot"+chn).toggle('blind');
+	});
+
         for (var i = 1; i < <%= channels+1 %>; i++) {
           charts[i].streamTo(document.getElementById("plot"+i));
           charts[i].options.fps = 40;
           charts[i].options.interpolation = 'line';
+	  charts[i].options.millisPerPixel = 15 * 1000 / 800;
+          charts[i].options.grid.millisPerLine = 1000;
           charts[i].stop();
+	  $( "#radio"+i).buttonset();
         }
 	<!-- Being able to change the time scale of the charts like that:  -->
 	<!-- smoothie.options.millisPerPixel = 1000; -->
@@ -414,7 +435,19 @@ div.exposure h4 {
       <div class="wavetext" id="wavetext<%= c %>">Waiting...</div>
       <div class="infobox">
        <div class="exposure"><span class="exposurebar" id="exposurebar<%= c %>"></span><h4>Exposure</h4></div>
-       <div class="longplot"><canvas id="plot<%= c %>" width="800" height="250" style="border: 1px solid;"></canvas></div>
+       <div class="longplot" id="longplot<%= c %>">
+	 <canvas id="plot<%= c %>" width="800" height="250" style="border: 1px solid;"></canvas>
+         <form>
+	 <div id="radio<%= c %>">
+		<input type="radio" id="radio1_<%= c %>" name="radio" checked onclick="switchplot(this, 1);"/><label for="radio1_<%= c %>">15s</label>
+		<input type="radio" id="radio2_<%= c %>" name="radio" onclick="switchplot(this, 2);"/><label for="radio2_<%= c %>">5m</label>
+		<input type="radio" id="radio3_<%= c %>" name="radio" onclick="switchplot(this, 3);"/><label for="radio3_<%= c %>">1h</label>
+	 </div>
+         </form>
+       </div>
+       <div>
+         <button class="longplottoggle ui-corner-all" id="longplottoggle<%= c%>">Show/hide chart</button
+       </div>
       </div>
       </div>
     </div>
