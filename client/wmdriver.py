@@ -33,6 +33,19 @@ cAvg1 = long(4);
 cAvg2 = long(5);
 validAmps = [cMin1, cMin2, cMax1, cMax2, cAvg1, cAvg2]
 
+# Pattern and Analysis
+cPatternDisable = long(0);
+cPatternEnable = long(1);
+cAnalysisDisable = cPatternDisable;
+cAnalysisEnable = cPatternEnable;
+
+cSignal1Interferometers = long(0);
+cSignal1WideInterferometer = long(1);
+cSignal1Grating = long(1);
+cSignal2Interferometers = long(2);
+cSignal2WideInterferometer = long(3);
+cSignalAnalysis = long(4);
+
 getexposure = wlm.GetExposureNum
 getexposure.restype = long
 def GetExposure():
@@ -68,10 +81,30 @@ def GetInterferenceStats(info=cMax1):
     if (info in validAmps):
         out = getinterferencestats(long(1), info, LZERO)
     else:
-        out = None;
-    return out;
+        out = None
+    return out
 
 gettemperature = wlm.GetTemperature
 gettemperature.restype = double
 def GetTemperature():
-    return gettemperature(DZERO);
+    """ Get current wavemeter temperature """
+    return gettemperature(DZERO)
+
+getpatternitemcount = wlm.GetPatternItemCount
+getpatternitemcount.restype = long
+def GetPatternItemCount(index):
+    """ Get interferometer's point coint """
+    return getpatternitemcount(index)
+
+getpatternitemsize = wlm.GetPatternItemSize
+getpatternitemsize.restype = long
+def GetPatternItemSize(index):
+    """ Get interferometer's data type size """
+    return getpatternitemsize(index)
+
+getpatterndata = wlm.GetPatternData
+getpatterndata.restype = long
+def GetPatternData(index, pointer):
+    """ Get interferometer's data type size """
+    return getpatterndata(index, pointer)
+
