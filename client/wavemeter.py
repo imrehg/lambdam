@@ -16,7 +16,7 @@ try:
 except(ImportError):
     import json
 
-dummy = True
+dummy = False
 if not dummy:
     import wmdriver
 else:
@@ -129,10 +129,12 @@ class Wavemeter(threading.Thread):
         self.done.set()
 
     def run(self):
+        lastdelay = None
         while not self.done.is_set():
             now = time()
             if not self.sQ.empty():
                 self.settings = self.sQ.get()
+            channels = len(self.settings['channels']);
             for ch in self.settings['channels']:
                 i = int(ch['num'])
                 t1 = int(ch['t1'])
@@ -141,7 +143,11 @@ class Wavemeter(threading.Thread):
                 # especially if there's a big difference in the exposure times
                 # the optimal value depends on: number of channels, current and
                 # previous channel exposure time, and probably other things
-                tdelay = 50  # ms
+                tdelay = 10;
+                if (channels > 1):
+                    if lastdelay:
+                        tdelay += lastdelay + 30
+                    lastdelay = t1 + t2
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
                     wmdriver.SetExposure((t1, 0))
