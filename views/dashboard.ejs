@@ -72,7 +72,7 @@ div.chnbox {
 
 div.infobox {
   position: relative;
-  left: 100px;
+  left: 50px;
 }
 
 div.exposure {
@@ -150,6 +150,7 @@ div.exposure h4 {
     charts[i] = new SmoothieChart();
   }
   var topupdate = new Array(<%= channels+1 %>);
+  var chartwidth = (window.innerWidth > 1000) ? 800 : Math.floor(window.innerWidth - 200);
 
   function resizeText(element) {
      element.text('0123456789'); // 10 digit resize
@@ -341,7 +342,7 @@ div.exposure h4 {
 	console.log(chn, level);
         var times = [15, 5*60, 60*60];
         var lines = [1, 60, 5*60];
-        var mpp = times[level-1] * 1000 / 800;
+        var mpp = times[level-1] * 1000 / chartwidth;
         var mpl = lines[level-1] * 1000;
         console.log(mpp, mpl);
         charts[chn].options.millisPerPixel = mpp;
@@ -358,6 +359,10 @@ div.exposure h4 {
 
   // Things for when we are ready to manipulate the page
   $("document").ready(function() {
+
+      $(".longplot").css('width', chartwidth);
+      $(".chart").css('width', chartwidth);
+      $(".chart").css('height', 150);
 
       $(".chnbtn").click(function() {
          var chn = getNumFromId(this.id, 'chnbtn');
@@ -496,7 +501,7 @@ div.exposure h4 {
       <div class="infobox">
        <div class="exposure"><span class="exposurebar" id="exposurebar<%= c %>"></span><h4>Exposure</h4></div>
        <div class="longplot" id="longplot<%= c %>">
-	 <canvas id="plot<%= c %>" width="800" height="250" style="border: 1px solid;"></canvas>
+	 <canvas id="plot<%= c %>" class="chart" width="800" height="150"></canvas>
          <form>
 	 <div id="radio<%= c %>">
 		<input type="radio" id="radio1_<%= c %>" name="radio" checked onclick="switchplot(this, 1);"/><label for="radio1_<%= c %>">15s</label>
