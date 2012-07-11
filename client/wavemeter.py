@@ -144,7 +144,7 @@ class Wavemeter(threading.Thread):
                 tdelay = 50  # ms
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
-                    wmdriver.SetExposure((t1, t2))
+                    wmdriver.SetExposure((t1, 0))
                     switch.setChannel(i-1)  # Channel number goes from 0  
                     xt1, xt2 = wmdriver.GetExposure()
                     logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
