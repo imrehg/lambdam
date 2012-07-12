@@ -3,7 +3,20 @@
 var express = require('express'),
     uuid = require('node-uuid'),
     util = require('util'),
-    underscore = require('underscore');
+    underscore = require('underscore'),
+    nconf = require('nconf')
+    ;
+
+// Configuration
+nconf.file({ file: 'wavemeter.json' });
+nconf.defaults({
+    'chnnames': {},
+    'channelNum': 16
+});
+function configsave(key, value) {
+    nconf.set(key, value);
+    nconf.save();
+}
 
 var app = express.createServer(express.logger());
 app.use(express.bodyParser());
@@ -19,8 +32,8 @@ function messageCenter(socket, msg) {
 // Store settings in memory as well
 var wmsettings = {};
 var rooms = {};
-var channelNum = 16;
-var chnnames = {};
+var channelNum = nconf.get('channelNum');
+var chnnames = nconf.get('chnnames');
 var lastReading = {};
 var temperature = 0;
 
@@ -106,6 +119,7 @@ var respserv = io.of('/channels')
 		      var chn = data.channel;
 		      var name = data.name;
 		      chnnames[chn] = name;
+		      configsave('chnnames', chnnames);
 		      socket.broadcast.emit('namechange', chnnames);
 		  });
     });
