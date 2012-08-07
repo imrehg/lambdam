@@ -109,3 +109,35 @@ def GetPatternData(index, pointer):
     """ Get interferometer's data type size """
     return getpatterndata(index, pointer)
 
+getpattern = wlm.GetPattern
+getpattern.restype = long
+def GetPattern(index):
+    """ Get interferometer's data type size """
+    return getpattern(index)
+
+setpattern = wlm.SetPattern
+setpattern.restype = long
+def SetPattern(index, iEnable):
+    """ Get interferometer's data type size """
+    return setpattern(index, iEnable)
+
+####
+# Own functions
+####
+
+def Interferogram():
+    """
+    Get the interferogram from the two interferometers in our current
+    model of wavemeter.
+    """
+    cnt = 1024
+    inter1 = (ctypes.c_long*cnt)()
+    pi1 = ctypes.cast(inter1, ctypes.POINTER(ctypes.c_long))
+
+    inter2 = (ctypes.c_long*cnt)()
+    pi2 = ctypes.cast(inter2, ctypes.POINTER(ctypes.c_long))
+
+    GetPatternData(cSignal1Interferometers, pi1)
+    GetPatternData(cSignal1WideInterferometer, pi2)
+
+    return (inter1, inter2)
