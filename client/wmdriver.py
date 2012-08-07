@@ -11,6 +11,7 @@ uInt64 = ctypes.c_ulonglong
 float64 = ctypes.c_double
 double = ctypes.c_double
 long = ctypes.c_long
+dword = ctypes.c_ulong
 
 LZERO = long(0)
 DZERO = double(0)
