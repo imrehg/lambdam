@@ -145,6 +145,13 @@ def TriggerMeasurement(Action):
 # Own functions
 ####
 
+def EnableInterferogram():
+    """
+    Enable to always export the interferograms
+    """
+    SetPattern(cSignal1Interferometers, cPatternEnable)
+    SetPattern(cSignal1WideInterferometer, cPatternEnable)
+
 def Interferogram():
     """
     Get the interferogram from the two interferometers in our current
@@ -159,5 +166,8 @@ def Interferogram():
 
     GetPatternData(cSignal1Interferometers, pi1)
     GetPatternData(cSignal1WideInterferometer, pi2)
+
+    inter1 = [int(i/6.5e4) for i in inter1]
+    inter2 = [int(i/6.5e4) for i in inter2]
 
     return (inter1, inter2)

@@ -131,7 +131,7 @@ io.configure(function(){
 
 var mainsocket = io.on('connection', function(socket) {
     socket.on('message', function(data) {
-	console.log(data);
+	// console.log(data);
 	if (data.wavelength) {
             console.log("!!!!!!!!!!!! ");
             data['temperature'] = temperature;

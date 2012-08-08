@@ -7,6 +7,7 @@
 <script src="/js/libs/underscore.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="/js/libs/smoothie.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.sparkline.min.js"></script>
 <style>
 .wavetext {
   font-size: xx-large;
@@ -240,7 +241,9 @@ div.exposure h4 {
         var channel = data['channel'],
             value = data['value'],
             time = data['timestamp'],
-            exposureval = data['exposureval'];
+            exposureval = data['exposureval'],
+            inter1 = data['inter1'],
+            inter2 = data['inter2'];
 	if (value < 0) {
 	    if (value == -3) { value = "Underexp" }
 	    else if (value == -4) { value = "Overexp" }
@@ -257,6 +260,9 @@ div.exposure h4 {
             if (exposureval) {
 	        expobar(channel, Math.floor(exposureval/3000 * 100))
 	    }
+
+            $("#interfero1_"+channel).sparkline(inter1, {height: 50, width: 400});
+            $("#interfero2_"+channel).sparkline(inter2, {height: 50, width: 400});
         }
 
         if (exposureval) {
@@ -454,7 +460,7 @@ div.exposure h4 {
 
         $( ".longplottoggle").click( function() {
              var chn = getNumFromId($(this).attr('id'), "longplottoggle");
-             $("#longplot"+chn).toggle('blind');
+             $("#plots"+chn).toggle('blind');
 	});
 
         for (var i = 1; i < <%= channels+1 %>; i++) {
@@ -515,6 +521,7 @@ div.exposure h4 {
       <div class="wavetext" id="wavetext<%= c %>">Waiting...</div>
       <div class="infobox">
        <div class="exposure"><span class="exposurebar" id="exposurebar<%= c %>"></span><h4>Exposure</h4></div>
+       <div class="plots" id="plots<%= c%>">
        <div class="longplot" id="longplot<%= c %>">
 	 <canvas id="plot<%= c %>" class="chart" width="800" height="150"></canvas>
          <form>
@@ -524,9 +531,13 @@ div.exposure h4 {
 		<input type="radio" id="radio3_<%= c %>" name="radio" onclick="switchplot(this, 3);"/><label for="radio3_<%= c %>">1h</label>
 	 </div>
          </form>
-       </div>
+       </div> <!-- longplot -->
+       <div class="interfero" id="interfero1_<%= c %>"></div>
+       <div class="interfero" id="interfero2_<%= c %>"></div>
+       </div> <!-- plots -->
        <div>
          <button class="longplottoggle ui-corner-all" id="longplottoggle<%= c%>">Show/hide chart</button
+       </div>
        </div>
       </div>
       </div>

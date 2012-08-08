@@ -167,6 +167,7 @@ class Wavemeter(threading.Thread):
                     self.vals[i] = wmdriver.GetWavelength()
                     imax1, imax2 = wmdriver.GetInterferenceStats(wmdriver.cMax1), wmdriver.GetInterferenceStats(wmdriver.cMax2);
                     intermax = imax1 if imax1 > imax2 else imax2
+                    inter1, inter2 = wmdriver.Interferogram()
                 else:
                     sleep(totalt)
                     self.vals[i] += gauss(0, 0.01)
@@ -177,6 +178,8 @@ class Wavemeter(threading.Thread):
                                               "value": self.vals[i],
                                               "timestamp": timestamp,
                                               "exposureval": intermax,
+                                              "inter1": inter1,
+                                              "inter2": inter2,
                                               }
                              })
             # Return the temperature after one round;
@@ -193,6 +196,7 @@ if not dummy:
     switch = Switcher("COM3")
 else:
     switch = None
+wmdriver.EnableInterferogram()
 client = RemoteClient('www.python.org', '/', readingsQ, settingsQ, switch)
 wavemeterThread = Wavemeter(0.0, settingsQ, readingsQ)
 wavemeterThread.start()
