@@ -135,6 +135,7 @@ class Wavemeter(threading.Thread):
             if not self.sQ.empty():
                 self.settings = self.sQ.get()
             channels = len(self.settings['channels']);
+            multichannel = (channels > 1)
             for ch in self.settings['channels']:
                 i = int(ch['num'])
                 t1 = int(ch['t1'])
@@ -144,7 +145,7 @@ class Wavemeter(threading.Thread):
                 # the optimal value depends on: number of channels, current and
                 # previous channel exposure time, and probably other things
                 tdelay = 10;
-                if (channels > 1):
+                if multichannel:
                     if lastdelay:
                         tdelay += lastdelay + 30
                     lastdelay = t1 + t2
@@ -156,6 +157,12 @@ class Wavemeter(threading.Thread):
                     logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                     if (t1 != xt1) | (t2 != xt2):
                         logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+
+                    # start new measurement
+                    if multichannel:
+                        wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementTriggerPoll)
+                    else:
+                        wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementContinue)
                     sleep(totalt) # wait
                     self.vals[i] = wmdriver.GetWavelength()
                     imax1, imax2 = wmdriver.GetInterferenceStats(wmdriver.cMax1), wmdriver.GetInterferenceStats(wmdriver.cMax2);

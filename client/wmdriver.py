@@ -47,6 +47,12 @@ cSignal2Interferometers = long(2);
 cSignal2WideInterferometer = long(3);
 cSignalAnalysis = long(4);
 
+# Trigger parameters
+cCtrlMeasurementContinue = long(0)
+cCtrlMeasurementInterrupt = long(1)
+cCtrlMeasurementTriggerPoll = long(2)
+cCtrlMeasurementTriggerSuccess = long(3)
+
 getexposure = wlm.GetExposureNum
 getexposure.restype = long
 def GetExposure():
@@ -120,6 +126,20 @@ setpattern.restype = long
 def SetPattern(index, iEnable):
     """ Get interferometer's data type size """
     return setpattern(index, iEnable)
+
+triggermeasurement = wlm.TriggerMeasurement
+triggermeasurement.restype = long
+def TriggerMeasurement(Action):
+    """
+    Interrupts, continues or triggers the measurement loop.
+
+    Input parameters:
+    cCtrlMeasurementContinue
+    cCtrlMeasurementInterrupt
+    cCtrlMeasurementTriggerPoll
+    cCtrlMeasurementTriggerSuccess
+    """
+    return triggermeasurement(Action)
 
 ####
 # Own functions
