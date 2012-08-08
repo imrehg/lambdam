@@ -157,12 +157,15 @@ class Wavemeter(threading.Thread):
                     logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                     if (t1 != xt1) | (t2 != xt2):
                         logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+                    wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementContinue)
 
-                    # start new measurement
+                    # # start new measurement
                     # if multichannel:
+                    #     sleep(0.005)
                     #     wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementTriggerPoll)
                     # else:
                     #     wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementContinue)
+
                     sleep(totalt) # wait
                     self.vals[i] = wmdriver.GetWavelength()
                     imax1, imax2 = wmdriver.GetInterferenceStats(wmdriver.cMax1), wmdriver.GetInterferenceStats(wmdriver.cMax2);
