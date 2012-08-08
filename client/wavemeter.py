@@ -147,7 +147,7 @@ class Wavemeter(threading.Thread):
                 tdelay = 10;
                 if multichannel:
                     if lastdelay:
-                        tdelay += lastdelay + 30
+                        tdelay += lastdelay + 40
                     lastdelay = t1 + t2
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
@@ -159,10 +159,10 @@ class Wavemeter(threading.Thread):
                         logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
 
                     # start new measurement
-                    if multichannel:
-                        wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementTriggerPoll)
-                    else:
-                        wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementContinue)
+                    # if multichannel:
+                    #     wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementTriggerPoll)
+                    # else:
+                    #     wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementContinue)
                     sleep(totalt) # wait
                     self.vals[i] = wmdriver.GetWavelength()
                     imax1, imax2 = wmdriver.GetInterferenceStats(wmdriver.cMax1), wmdriver.GetInterferenceStats(wmdriver.cMax2);
