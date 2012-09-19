@@ -374,6 +374,9 @@ div.exposure h4 {
 	  bannername += ": "+name
       }
       $("#chntitle"+chn).html(bannername);
+
+      // Change button hover text to name
+      $("#chnbtn"+chn).attr("title", name);
   }
 
   // Things for when we are ready to manipulate the page
@@ -503,7 +506,7 @@ div.exposure h4 {
 <span style="font-size: large;">Channels</span><br>
 <ul id="chnlines">
 <% for (var c = 1; c <= channels; c++) { %>
-  <li class="chnline"><button class="chnbtn ui-corner-all" id="chnbtn<%= c%>"><%= c %></button><input class="chnname" id="chnname<%= c%>"/></li>
+  <li class="chnline"><button class="chnbtn ui-corner-all" id="chnbtn<%= c%>" title=""><%= c %></button><input class="chnname" id="chnname<%= c%>"/></li>
 <% } %>
 </ul>
 </div>
