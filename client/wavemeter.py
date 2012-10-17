@@ -130,6 +130,7 @@ class Wavemeter(threading.Thread):
 
     def run(self):
         lastdelay = None
+        lastchannel = None
         while not self.done.is_set():
             now = time()
             if not self.sQ.empty():
@@ -152,7 +153,9 @@ class Wavemeter(threading.Thread):
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
                     wmdriver.SetExposure((t1, 0))
-                    switch.setChannel(i-1)  # Channel number goes from 0  
+                    if lastchannel <> i:
+                        switch.setChannel(i-1)  # Channel number goes from 0
+                        lastchannel = i
                     xt1, xt2 = wmdriver.GetExposure()
                     logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                     if (t1 != xt1) | (t2 != xt2):
