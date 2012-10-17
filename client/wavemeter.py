@@ -157,9 +157,9 @@ class Wavemeter(threading.Thread):
                         switch.setChannel(i-1)  # Channel number goes from 0
                         lastchannel = i
                     xt1, xt2 = wmdriver.GetExposure()
-                    logger.info("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+                    logger.debug("Setting: %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                     if (t1 != xt1) | (t2 != xt2):
-                        logger.info("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
+                        logger.debug("Exposure setting failed? %d / %d || %d / %d" %(t1, xt1, t2, xt2))
                     wmdriver.TriggerMeasurement(wmdriver.cCtrlMeasurementContinue)
 
                     # # start new measurement
