@@ -148,7 +148,7 @@ class Wavemeter(threading.Thread):
                 tdelay = 10;
                 if multichannel:
                     if lastdelay:
-                        tdelay += lastdelay + 40
+                        tdelay += lastdelay + 100
                     lastdelay = t1 + t2
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
