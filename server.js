@@ -125,7 +125,7 @@ var respserv = io.of('/channels')
     });
 
 io.configure(function(){
-    io.set('log level', 6);
+    io.set('log level', 1);
     io.set("transports", ["websocket", "xhr-polling"]);
 });
 
