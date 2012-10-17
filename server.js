@@ -133,12 +133,12 @@ var mainsocket = io.on('connection', function(socket) {
     socket.on('message', function(data) {
 	// console.log(data);
 	if (data.wavelength) {
-            console.log("!!!!!!!!!!!! ");
+            // console.log("!!!!!!!!!!!! ");
             data['temperature'] = temperature;
             respserv.in(data.wavelength.channel).emit("message", data);
             lastReading[data.wavelength.channel] = data;
 	} else if (data.temperature) {
-	    console.log(">>>>> Temperature: "+data.temperature);
+	    // console.log(">>>>> Temperature: "+data.temperature);
             temperature = data.temperature;
 	}
     });
