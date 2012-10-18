@@ -46,7 +46,7 @@ class Switcher(object):
         self.terminator = ""
 
     def setChannel(self, i):
-        self.ser.write("%d%s" %(i, self.terminator))
+        self.ser.write(chr(i))  # send binary number
 
 class RemoteClient(asyncore.dispatcher):
 
