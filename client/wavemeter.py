@@ -178,6 +178,7 @@ class Wavemeter(threading.Thread):
                     sleep(totalt)
                     self.vals[i] += gauss(0, 0.01)
                     intermax = 1000;
+                    inter1, inter2 = [0]*1024, [0]*1024
                 logger.debug("Channel %d: measured %f" %(i, self.vals[i]))
                 timestamp = time()
                 self.rQ.put({"wavelength" : { "channel": i,
@@ -200,9 +201,9 @@ class Wavemeter(threading.Thread):
 
 if not dummy:
     switch = Switcher("COM3")
+    wmdriver.EnableInterferogram()
 else:
     switch = None
-wmdriver.EnableInterferogram()
 client = RemoteClient('www.python.org', '/', readingsQ, settingsQ, switch)
 wavemeterThread = Wavemeter(0.0, settingsQ, readingsQ)
 wavemeterThread.start()
