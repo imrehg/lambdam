@@ -455,7 +455,7 @@ div.exposure h4 {
           console.log("CLICK!");
           var id = $(this).attr('id');
           var chn = id.slice(8,id.length+1);
-          var csv = '';
+          var csv = '#Time(Unixtime),Frequency(nm),WavemeterTemperature(C)\n';
           savedValues[chn].forEach(function(e) {
              csv += e[0] + ',' + e[1] + ',' + e[2] + '\n';
           });
