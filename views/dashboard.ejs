@@ -146,6 +146,18 @@ div.exposure h4 {
   padding: 4px;
 }
 
+.timediv {
+  position: relative;
+  top: 5;
+  left: 0;
+}
+
+.unitdiv {
+  position: relative;
+  top: -52;
+  left: 200;
+}
+
 </style>
 <script>
   var channels = {};
@@ -159,6 +171,13 @@ div.exposure h4 {
   }
   var topupdate = new Array(<%= channels+1 %>);
   var chartwidth = (window.innerWidth > 1000) ? 800 : Math.floor(window.innerWidth - 200);
+
+  var c = 299792458;  // Speed of light in vacuum m/s
+  var unitmultiplier = {'nm': function(x){return x}, 'thz': function(x){ return c/(1000 * x)} }
+  var multiplier = new Array(<%= channels+1 %>);
+  for (var i = 1; i < <%= channels+1 %>; i++) {
+    multiplier[i] = unitmultiplier['nm'];
+  }
 
   function resizeText(element) {
      element.text('0123456789'); // 10 digit resize
@@ -244,14 +263,15 @@ div.exposure h4 {
             exposureval = data['exposureval'],
             inter1 = data['inter1'],
             inter2 = data['inter2'];
+	var showvalue = multiplier[channel](value).toFixed(6);
 	if (value < 0) {
 	    if (value == -3) { value = "Underexp" }
 	    else if (value == -4) { value = "Overexp" }
 	} else {
-            value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6);
+            <!-- value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6); -->
 
             savedValues[channel].push([time, value, msg.temperature.toFixed(3)]);
-            savedValuesPlot[channel].append(time*1000, value);
+            savedValuesPlot[channel].append(time*1000, showvalue);
             if (startTime[channel] < 0) {
                 startTime[channel] = time;
             }
@@ -269,9 +289,9 @@ div.exposure h4 {
 	    expobar(channel, Math.floor(exposureval/4000 * 100))
 	}
         // Show readings
-        $("#wavetext"+channel).text(value);
+        $("#wavetext"+channel).text(showvalue);
         if (topupdate[channel]) {
-	    topupdate[channel](value);
+	    topupdate[channel](showvalue);
 	}
     }
     if (msg.temperature) {
@@ -366,6 +386,13 @@ div.exposure h4 {
         console.log(mpp, mpl);
         charts[chn].options.millisPerPixel = mpp;
         charts[chn].options.grid.millisPerLine = mpl;
+  }
+
+  function switchunits(radio, unit) {
+	var id = radio.getAttribute('id');
+	var chn = getNumFromId(id, "radio1_");
+	multiplier[chn] = unitmultiplier[unit]
+        savedValuesPlot[chn].data = [];
   }
 
   function setNameBanner(chn, name) {
@@ -474,6 +501,7 @@ div.exposure h4 {
           charts[i].options.grid.millisPerLine = 1000;
           charts[i].stop();
 	  $( "#radio"+i).buttonset();
+	  $( "#units"+i).buttonset();
         }
 	<!-- Being able to change the time scale of the charts like that:  -->
 	<!-- smoothie.options.millisPerPixel = 1000; -->
@@ -527,6 +555,8 @@ div.exposure h4 {
        <div class="plots" id="plots<%= c%>">
        <div class="longplot" id="longplot<%= c %>">
 	 <canvas id="plot<%= c %>" class="chart" width="800" height="150"></canvas>
+
+         <div class="timediv">
          <form>
 	 <div id="radio<%= c %>">
 		<input type="radio" id="radio1_<%= c %>" name="radio" checked onclick="switchplot(this, 1);"/><label for="radio1_<%= c %>">15s</label>
@@ -534,6 +564,17 @@ div.exposure h4 {
 		<input type="radio" id="radio3_<%= c %>" name="radio" onclick="switchplot(this, 3);"/><label for="radio3_<%= c %>">1h</label>
 	 </div>
          </form>
+	 </div>
+
+         <div class="unitdiv">
+         <form>
+	 <div id="units<%= c %>">
+		<input type="radio" id="units1_<%= c %>" name="radio" checked onclick="switchunits(this, 'nm');"/><label for="units1_<%= c %>">Wavelength (nm)</label>
+		<input type="radio" id="units2_<%= c %>" name="radio" onclick="switchunits(this, 'thz');"/><label for="units2_<%= c %>">Frequency (THz)</label>
+	 </div>
+         </form>
+         </div>
+
        </div> <!-- longplot -->
        <div class="interfero" id="interfero1_<%= c %>"></div>
        <div class="interfero" id="interfero2_<%= c %>"></div>
