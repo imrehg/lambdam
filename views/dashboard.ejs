@@ -262,13 +262,13 @@ div.exposure h4 {
             time = data['timestamp'],
             exposureval = data['exposureval'],
             inter1 = data['inter1'],
-            inter2 = data['inter2'];
-	var showvalue = multiplier[channel](value).toFixed(6);
+            inter2 = data['inter2'],
+            showvalue = '';
 	if (value < 0) {
-	    if (value == -3) { value = "Underexp" }
-	    else if (value == -4) { value = "Overexp" }
+	    if (value == -3) { showvalue = "Underexp" }
+	    else if (value == -4) { showvalue = "Overexp" }
 	} else {
-            <!-- value = Math.round(value * Math.pow(10, 6))/Math.pow(10, 6); -->
+            showvalue = multiplier[channel](value).toFixed(6);
 
             savedValues[channel].push([time, value, msg.temperature.toFixed(3)]);
             savedValuesPlot[channel].append(time*1000, showvalue);
