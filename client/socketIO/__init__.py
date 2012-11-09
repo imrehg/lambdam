@@ -66,7 +66,6 @@ class SocketIO(object):
     def emit(self, eventName, eventData):
         self.msgid += 1
         sentString = '5:%d::' %(self.msgid) + dumps(dict(name=eventName, args=eventData))
-        print(sentString)
         self.connection.send(sentString)
         # print "->", self.connection.recv()
 

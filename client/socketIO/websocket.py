@@ -343,6 +343,7 @@ class WebSocket(object):
         self.connected = False
         self.io_sock = self.sock = socket.socket()
         self.get_mask_key = get_mask_key
+        enableTrace(traceEnabled)
         
     def set_mask_key(self, func):
         """

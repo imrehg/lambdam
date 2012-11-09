@@ -5,8 +5,8 @@ import asyncore, socket
 import random
 import asyncore, socket
 
-from time import sleep
-from socketIO import SocketIO, websocket
+from time import sleep, time
+from socketIO import SocketIO, websocket, enableTrace
 import logging
 import os
 import serial
