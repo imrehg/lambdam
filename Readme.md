@@ -13,7 +13,7 @@ Requirements
 **Client**:
 
  * Python (2.7.x), download from http://www.python.org/download/
- * pySerial (the latest one, eg. 2.5 at the time of this writing), download from http://www.python.org/download/ for Windows
+ * pySerial (the latest one, eg. 2.5 at the time of this writing), download from http://sourceforge.net/projects/pyserial/files/pyserial/ for Windows
 
 Usage
 =====
