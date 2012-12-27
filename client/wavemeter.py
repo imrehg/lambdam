@@ -31,7 +31,10 @@ logger.setLevel(logging.INFO)
 settingsQ = mp.Queue()
 readingsQ = mp.Queue()
 
-port = int(os.environ['PORT']) if os.environ['PORT'] else 5000
+try:
+    port = int(os.environ['PORT'])
+except KeyError,ValueError:
+    port = 5000
 
 class Switcher(object):
 
