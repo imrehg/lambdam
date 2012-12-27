@@ -10,6 +10,7 @@ from socketIO import SocketIO, websocket, enableTrace
 import logging
 import os
 import serial
+from ctypes import *
 
 try:
     import simplejson as json
@@ -50,6 +51,18 @@ class Switcher(object):
 
     def setChannel(self, i):
         self.ser.write(chr(i))  # send binary number
+
+
+class Switcher2(object):
+
+    def __init__(self):
+        self.__driver = cdll.altera_blaster_labview
+        self.__write = self.__driver.blaster_comm
+
+    def setChannel(self, i):
+        out = c_int(i)
+        outp = pointer(outp)
+        self.__write(outp, sizeof(out))
 
 class RemoteClient(asyncore.dispatcher):
 
@@ -204,6 +217,7 @@ class Wavemeter(threading.Thread):
 
 if not dummy:
     switch = Switcher("COM4")
+    # switch = Switcher2()
     wmdriver.EnableInterferogram()
 else:
     switch = None
