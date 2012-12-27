@@ -175,7 +175,7 @@ class Wavemeter(threading.Thread):
                     sleep(totalt) # wait
                     self.vals[i] = wmdriver.GetWavelength()
                     imax1, imax2 = wmdriver.GetInterferenceStats(wmdriver.cMax1), wmdriver.GetInterferenceStats(wmdriver.cMax2);
-                    intermax = imax1 if imax1 > imax2 else imax2
+                    intermax = max(imax1, imax2)
                     inter1, inter2 = wmdriver.Interferogram()
                 else:
                     sleep(totalt)
