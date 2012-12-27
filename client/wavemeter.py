@@ -203,7 +203,7 @@ class Wavemeter(threading.Thread):
             self.done.wait(self.interval)
 
 if not dummy:
-    switch = Switcher("COM3")
+    switch = Switcher("COM4")
     wmdriver.EnableInterferogram()
 else:
     switch = None
