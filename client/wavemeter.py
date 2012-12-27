@@ -155,7 +155,7 @@ class Wavemeter(threading.Thread):
                     lastdelay = t1 + t2
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
-                    wmdriver.SetExposure((t1, 0))
+                    wmdriver.SetExposure((t1, t2))
                     if lastchannel <> i:
                         switch.setChannel(i-1)  # Channel number goes from 0
                         lastchannel = i
