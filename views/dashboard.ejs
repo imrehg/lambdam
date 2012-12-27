@@ -299,10 +299,16 @@ div.exposure h4 {
         displayTemp(msg.temperature);
     }
   });
-  var displayTvals = function(chn) {
-    var t1 = $("#t1slider"+chn).slider("value"),
-        t2 = $("#t2slider"+chn).slider("value");
-    $("#tval"+chn).val("T1="+t1+"; T2="+t2);
+  var displayTvals = function(chn, value) {
+     var text;
+     if (value) {
+        text = "Setting to: "+value;
+     } else {
+        var t1 = $("#t1slider"+chn).slider("value"),
+            t2 = $("#t2slider"+chn).slider("value");
+        text = "T1="+t1+"; T2="+t2;
+     }
+    $("#tval"+chn).val(text);
   }
   conn.on('settings', function(msg) {
     if (msg.newchannel) {
@@ -441,7 +447,7 @@ div.exposure h4 {
                    var id = $(this).attr('id');
                    var chn = id.slice(8,id.length+1);
                    var value = ui.value;
-                   displayTvals(chn);
+                   displayTvals(chn, value);
                 },
               stop: function( event, ui ) {
                    var chn = getNumFromId(this.id, 'tXslider');
