@@ -478,15 +478,9 @@ div.exposure h4 {
           });
           var timestamp = Math.round(+new Date()/1000);
           this.download='CH'+chn+'-'+dateFromUnix(timestamp)+'.csv';
-	  // var encodeddata = 'data:text/csv;base64,' + btoa(csv);
-          // this.href = encodeddata;
-          // Fix from here: http://html5-demos.appspot.com/static/a.download.html
-          window.URL = window.webkitURL || window.URL;
-          window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder ||
-                       window.MozBlobBuilder;
-          var bb = new BlobBuilder();
-          bb.append(csv);
-          this.href = window.URL.createObjectURL(bb.getBlob("text/csv"));
+          var blob = new Blob([csv], {type: 'text/csv'});
+          this.href = window.URL.createObjectURL(blob);
+
         });
 
         // Channel naming routines
