@@ -15,7 +15,7 @@ nconf.file({ file: 'wavemeter.json' });
 nconf.defaults({
     'chnnames': {},
     'channelNum': 16,
-    'maxBadReadings': 100
+    'maxBadReadingTime': 300  // maximum bad reading time in seconds, default 5 mins
 });
 function configsave(key, value) {
     nconf.set(key, value);
@@ -38,10 +38,14 @@ var wmsettings = {};
 var rooms = {};
 var channelNum = nconf.get('channelNum');
 var chnnames = nconf.get('chnnames');
-var maxBadReadings = nconf.get('maxBadReadings');
+var maxBadReadingTime = nconf.get('maxBadReadingTime');
 var lastReading = {};
 var temperature = 0;
-var badReadings = {};
+var badReadingStart = {};
+
+var getTime = function() {
+    return Date.now() / 1000;
+}
 
 // Add socket ID to the room collection
 function roomAdd(id, room) {
@@ -146,22 +150,21 @@ var mainsocket = io.on('connection', function(socket) {
 	if (data.wavelength) {
             var channel = data.wavelength['channel'];
             if (data.wavelength['value'] < 0) {
-		// Count bad readings
-		if (badReadings[channel]) {
-		 badReadings[channel] += 1;
-		} else {
-		 badReadings[channel] = 1;
+		// first wrong reading
+		if (typeof(badReadingStart[channel]) == 'undefined') {
+		 badReadingStart[channel] = getTime();
 		}
-                if ((badReadings[channel] > maxBadReadings)) {
+                if ((getTime() - badReadingStart[channel]) > maxBadReadingTime) {
 		    console.log("Disabling channel for bad readings: ", channel);
 		    delete wmsettings[channel];
 		    delete rooms[channel];
 		    updateSettings();
 		    io.of('/channels').emit('removechannel', {'id' : channel});
+		    delete badReadingStart[channel];
 	        }
 	    } else {
 		// Reset to normal when there's normal reading
-		if (badReadings[channel]) {
+		if (typeof(badReadingStart[channel]) != 'undefined') {
 		    delete badReadings[channel];
 		}
 	    }
