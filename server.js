@@ -1,6 +1,9 @@
 
 // Import and setup
 var express = require('express'),
+    app = express(),
+    http = require('http'),
+    server = http.createServer(app),
     uuid = require('node-uuid'),
     util = require('util'),
     underscore = require('underscore'),
@@ -18,11 +21,11 @@ function configsave(key, value) {
     nconf.save();
 }
 
-var app = express.createServer(express.logger());
+app.use(express.logger());
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
 
-var io = require('socket.io').listen(app);
+var io = require('socket.io').listen(server);
 
 function messageCenter(socket, msg) {
     console.log("MESSAGE!");
@@ -208,6 +211,6 @@ app.get('/chn1', function(req, res) {
 
 // Start the app
 var port = process.env.PORT || 3000;
-app.listen(port, function() {
+server.listen(port, function() {
   console.log("Listening on " + port);
 });
