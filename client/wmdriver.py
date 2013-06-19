@@ -1,5 +1,5 @@
 """
-Driver module for HighFinesse WD7
+Driver module for HighFinesse WS7
 """
 import ctypes
 import numpy
