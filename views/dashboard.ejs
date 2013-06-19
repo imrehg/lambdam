@@ -135,7 +135,7 @@ div.exposure h4 {
   font-weight: bold;
   border: 1px solid black;
   float: left;
-  padding: 4px;
+  padding: 3px;
   width: 140px;
 }
 
@@ -370,9 +370,9 @@ div.exposure h4 {
 	charts[chn].addTimeSeries(savedValuesPlot[chn]);
         charts[chn].start();
 
-        $('#topbar').append('<div id="topbar'+chn+'" class="topbaritem">Ch '+chn+':</div>');
+        $('#topbar').append('<div id="topbar'+chn+'" class="topbaritem">'+chn+':</div>');
         var thistop = document.getElementById("topbar"+chn);
-        topupdate[chn] = function(val) { thistop.innerHTML = "Ch "+ chn+": "+val;}
+        topupdate[chn] = function(val) { thistop.innerHTML = ""+ chn+": "+val;}
 
         $(".longplot").css('width', chartwidth);
 
