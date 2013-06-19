@@ -83,7 +83,12 @@ var respserv = io.of('/channels')
 		      var room = data.channel;
 		      this.in(room).emit('message', "one leaving room "+room);
 		      var namespace = socket.namespace.name;
-		      var numlistener = socket.manager.rooms[namespace+'/'+room].length;
+		      var numlistener = 0;
+                      try {
+			  numlistener = socket.manager.rooms[namespace+'/'+room].length;
+		      } catch (x) {
+			  console.log('Removed room that did not exist.');
+		      }
 		      socket.leave(room);
 		      roomRemove(socket.id, room);
 		      // If no more listeners, remove settings
