@@ -335,6 +335,12 @@ div.exposure h4 {
 	setNameBanner(chn, msg[chn]);
      }
   });
+  conn.on('removechannel', function(msg) {
+     console.log('Remove', msg);
+     if (channels[msg.id]) {
+	 changeChannel(msg.id);
+     }
+  });
 
   function changeChannel(chn) {
      savedValues[chn] = new Array();
