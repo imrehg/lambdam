@@ -27,6 +27,8 @@ Update node packages (in the command line, or using `cmd.exe` in Windows) inside
 
 This should install all necessary packages. If you already have the `node_packages` directory there (copied the project), then might not need to do it.
 
+The current version on Windows might need .Net Framework 3.5 installed to correctly set up.
+
 Other times
 -----------
 
@@ -41,6 +43,17 @@ and in the client directory
 on Windows
 
 Go to [http://localhost:5000](http://localhost:5000)
+
+Configuration
+-------------
+
+Configuration is in the `wavemeter.json` file. It's in JSON format, see the relevant documents on the web what should be correct.
+
+The parameters:
+
+ * `chnnames`: The appropriate channel names. Automatically saved
+ * `maxBadReadingTime`: the longest continuos bad reading allowed, in seconds, default is 300 (5 minutes)
+ * `channelNum`: the number of channels, default is 16
 
 Test client
 -----------
