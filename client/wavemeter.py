@@ -148,10 +148,10 @@ class Wavemeter(threading.Thread):
                 # especially if there's a big difference in the exposure times
                 # the optimal value depends on: number of channels, current and
                 # previous channel exposure time, and probably other things
-                tdelay = 10;
+                tdelay = 200;
                 if multichannel:
                     if lastdelay:
-                        tdelay += lastdelay + 100
+                        tdelay += lastdelay + 200
                     lastdelay = t1 + t2
                 totalt = (t1 + t2 + tdelay) / 1000.0  
                 if not dummy:
