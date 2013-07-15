@@ -165,7 +165,7 @@ var mainsocket = io.on('connection', function(socket) {
 	    } else {
 		// Reset to normal when there's normal reading
 		if (typeof(badReadingStart[channel]) != 'undefined') {
-		    delete badReadings[channel];
+		    delete badReadingStart[channel];
 		}
 	    }
             // console.log("!!!!!!!!!!!! ");
