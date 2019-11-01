@@ -8,7 +8,7 @@
     "url": "https://github.com/imrehg/lambdam.git"
   },
   "dependencies": {
-    "ejs": "0.8.4",
+    "ejs": "2.7.1",
     "express": "3.2.6",
     "nconf": "0.6.7",
     "node-uuid": "1.4.0",
